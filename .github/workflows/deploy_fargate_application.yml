@@ -48,7 +48,7 @@ jobs:
         IMAGE_TAG: latest
       run: |
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:backend-$IMAGE_TAG . -f prod.back.fargate.Dockerfile
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:backend-$IMAGE_TAG
 
     - name: Build, tag, and push the frontend image to ECR
       env:
@@ -57,7 +57,7 @@ jobs:
         IMAGE_TAG: latest
       run: |
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:frontend-$IMAGE_TAG . -f prod.front.fargate.Dockerfile
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:frontend-$IMAGE_TAG
 
     # - name: Deploy Fargate Cluster
     #   id: fargate-cluster
