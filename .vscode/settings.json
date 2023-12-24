@@ -38,6 +38,7 @@
     ],
     "github-actions.workflows.pinned.workflows": [
         ".github/workflows/deploy_fargate_application_nginx.yml",
-        ".github/workflows/deploy_lambda_application.yml"
+        ".github/workflows/deploy_lambda_application.yml",
+        ".github/workflows/deploy_fargate_application.yml"
     ]
 }

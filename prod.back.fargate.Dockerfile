@@ -3,7 +3,7 @@ FROM python:3.11
 # RUN yum install which -y
 
 WORKDIR /code
-COPY . /code
+COPY /backend /code
 
 RUN curl -sSL https://install.python-poetry.org | python3.11 -
 RUN cp $HOME/.local/bin/poetry /usr/local/bin
