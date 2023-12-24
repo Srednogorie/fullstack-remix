@@ -31,7 +31,7 @@ Parameters:
     Description: What port that the load balancer listener expects traffic on
   DesiredCount:
     Type: Number
-    Default: 2
+    Default: 1
     Description: How many copies of the service task to run
 
 Resources:
@@ -136,6 +136,7 @@ Resources:
     # Avoid race condition between ECS service creation and associating
     # the target group with the LB
     DependsOn: PublicLoadBalancerListener
+    DeletionPolicy: Delete
     Properties:
       ServiceName: !Ref ApplicationName
       Cluster: !Sub ${ApplicationName}-cluster
@@ -157,6 +158,7 @@ Resources:
         - ContainerName: app
           ContainerPort: !Ref AppContainerPort
           TargetGroupArn: !Ref ServiceTargetGroup
+      EnableExecuteCommand: true
 
   # Security group that limits network access
   # to the task
