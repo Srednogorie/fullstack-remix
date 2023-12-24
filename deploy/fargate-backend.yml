@@ -79,6 +79,12 @@ Resources:
   ECSTaskConnectRole:
     Type: AWS::IAM::Role
     Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: [ecs-tasks.amazonaws.com]
+            Action: ['sts:AssumeRole']
       Policies:
         - PolicyName: AllowConnectToTask
           PolicyDocument:
