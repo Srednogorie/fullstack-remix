@@ -140,6 +140,12 @@ app.include_router(
 app.include_router(note_router.router)
 
 
+# Healthcheck
+@app.get("/")
+async def root(request: Request):
+    return {"message": "Healthcheck"}
+
+
 # Websocket
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
