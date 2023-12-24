@@ -89,7 +89,7 @@ Resources:
       ContainerDefinitions:
         # Application container
         - Name: app
-          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ApplicationName}:latest"
+          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ApplicationName}:backend-latest"
           PortMappings:
             - ContainerPort: !Ref AppContainerPort
           LogConfiguration:

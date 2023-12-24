@@ -63,7 +63,7 @@ jobs:
       id: fargate-cluster
       uses: aws-actions/aws-cloudformation-github-deploy@master
       with:
-        name: ${{ github.event.inputs.applicationName }}-fargate-cluster
+        name: ${{ github.event.inputs.applicationName }}-fargate-backend-cluster
         template: deploy/fargate-backend.yml
         no-fail-on-empty-changeset: "1"
         capabilities: CAPABILITY_NAMED_IAM
