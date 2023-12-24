@@ -1,20 +1,16 @@
 import os
-import re
 
-from fastapi import Depends, FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 
 from fastapi.exceptions import HTTPException as StarletteHTTPException
 from fastapi.exceptions import RequestValidationError
-from fastapi.middleware.cors import CORSMiddleware
-# from starlette.middleware.cors import CORSMiddleware
 
 from app.routers import note_router
 from app.utils.ws_manager import WsConnectionManager
-from app.utils.custom_csrf_middleware import CSRFMiddleware
 
 from .config.users import (
-    cookie_auth_backend, current_active_user, fastapi_users,
-    google_cookie_auth_backend, google_oauth_client
+    cookie_auth_backend, fastapi_users, google_cookie_auth_backend,
+    google_oauth_client
 )
 
 from .schemas.user_schema import (
@@ -159,4 +155,3 @@ async def websocket_endpoint(websocket: WebSocket):
         ws_manager.disconnect(websocket)
 
 # handler = Mangum(app, dsn=DSN_URL)
-
