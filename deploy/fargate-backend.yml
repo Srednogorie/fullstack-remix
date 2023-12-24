@@ -74,7 +74,7 @@ Resources:
                   - secretsmanager:GetSecretValue
                 Resource: "*"
 
-  # Allow the task too access the underlining resources so we connect to the 
+  # Allow the task to access the underlining resources so we connect to the 
   # container from the cli
   ECSTaskConnectRole:
     Type: AWS::IAM::Role
@@ -103,7 +103,6 @@ Resources:
   # container(s) to run, and what resource requirements the task has
   TaskDefinition:
     Type: AWS::ECS::TaskDefinition
-    DeletionPolicy: Delete
     Properties:
       Family: !Ref ApplicationName
       Cpu: !Ref ContainerCpu
@@ -162,7 +161,6 @@ Resources:
     # Avoid race condition between ECS service creation and associating
     # the target group with the LB
     DependsOn: PublicLoadBalancerListener
-    DeletionPolicy: Delete
     Properties:
       ServiceName: !Ref ApplicationName
       Cluster: !Sub ${ApplicationName}-cluster
