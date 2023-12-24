@@ -1,0 +1,43 @@
+{
+    "cSpell.words": [
+        "asyncpg",
+        "BREVO",
+        "debugpy",
+        "Fargate",
+        "fastapi",
+        "httpx",
+        "joinedload",
+        "loguru",
+        "mangum",
+        "psycopg",
+        "pydantic",
+        "sessionmaker",
+        "sqlalchemy",
+        "starlette",
+        "UUIDID",
+        "uvicorn"
+    ],
+    "sqltools.connections": [
+        {
+            "pgOptions": {
+                "ssl": {
+                    "key": "",
+                    "cert": "",
+                    "ca": "/Users/apple/.ssh/FrankfurtKeyPair.pem"
+                }
+            },
+            "previewLimit": 50,
+            "server": "database-1.c2xeodhydktm.eu-central-1.rds.amazonaws.com",
+            "port": 5432,
+            "askForPassword": true,
+            "driver": "PostgreSQL",
+            "name": "rds_free_tier_postgres",
+            "database": "postgres",
+            "username": "postgres"
+        }
+    ],
+    "github-actions.workflows.pinned.workflows": [
+        ".github/workflows/deploy_fargate_application_nginx.yml",
+        ".github/workflows/deploy_lambda_application.yml"
+    ]
+}

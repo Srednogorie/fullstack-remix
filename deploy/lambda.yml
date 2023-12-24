@@ -1,0 +1,119 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Parameters:
+  ApplicationName:
+    Type: String
+    Description: Name of the application. This is consistent across the stacks.
+  DbAddress:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /default/db/db-address
+  DbPort:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /default/db/db-port
+  EnvMode:
+    Type: String
+    Description: Used to conditionally initiate the Mangum handler
+    Default: lambda 
+
+Resources:
+    LambdaFunction:
+        Type: "AWS::Lambda::Function"
+        Properties:
+            Environment:
+                Variables:
+                    BREVO_API_KEY: "{{resolve:secretsmanager:default/app-config-secrets:SecretString:brevo-api-key}}"
+                    AUTH_VERIFICATION_SECRET: "{{resolve:secretsmanager:default/app-config-secrets:SecretString:auth-verification-secret}}"
+                    GOOGLE_OAUTH_CLIENT_ID: "{{resolve:secretsmanager:default/app-config-secrets:SecretString:google-oauth-client-id}}"
+                    GOOGLE_OAUTH_CLIENT_SECRET: "{{resolve:secretsmanager:default/app-config-secrets:SecretString:google-oauth-client-secret}}"
+                    DB_USER: "{{resolve:secretsmanager:default/db-credentials:SecretString:username}}"
+                    DB_PASSWORD: "{{resolve:secretsmanager:default/db-credentials:SecretString:password}}"
+                    DB_ADDRESS: !Ref DbAddress
+                    DB_PORT: !Ref DbPort
+                    ENV_MODE: !Ref EnvMode
+            FunctionName: !Ref ApplicationName
+            Architectures:
+              - "x86_64"
+            PackageType: Image
+            Code: 
+                ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ApplicationName}:latest"
+            MemorySize: 128
+            Role: !GetAtt LambdaExecutor.Arn
+            Timeout: 3
+            TracingConfig: 
+                Mode: "PassThrough"
+            EphemeralStorage: 
+                Size: 512
+
+    # Grant to he AWS service or AWS account that invokes the function.
+    LambdaPermission:
+        Type: "AWS::Lambda::Permission"
+        Properties:
+            Action: "lambda:InvokeFunction"
+            FunctionName: !GetAtt LambdaFunction.Arn
+            Principal: "apigateway.amazonaws.com"
+            SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayRestApi}/*/*/"
+
+    ApiGatewayRestApi:
+        Type: "AWS::ApiGateway::RestApi"
+        Properties:
+            Name: !Ref LambdaFunction
+            EndpointConfiguration:
+                Types:
+                  - "REGIONAL"
+
+    ApiGatewayStage:
+        Type: "AWS::ApiGateway::Stage"
+        Properties:
+            DeploymentId: !Ref ApiGatewayDeployment
+            RestApiId: !Ref ApiGatewayRestApi
+            # First segment of the invocation url path
+            StageName: api
+
+    ApiGatewayDeployment:
+        Type: "AWS::ApiGateway::Deployment"
+        DependsOn:
+            - "ApiGatewayMethod"
+        Properties:
+            RestApiId: !Ref ApiGatewayRestApi
+
+    ApiGatewayMethod:
+        Type: "AWS::ApiGateway::Method"
+        Properties:
+            RestApiId: !Ref ApiGatewayRestApi
+            ResourceId: !GetAtt ApiGatewayRestApi.RootResourceId
+            HttpMethod: "ANY"
+            AuthorizationType: "NONE"
+            ApiKeyRequired: false
+            RequestParameters: {}
+            Integration:
+                IntegrationHttpMethod: "POST"
+                PassthroughBehavior: "WHEN_NO_MATCH"
+                TimeoutInMillis: 29000
+                Type: "AWS_PROXY"
+                Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${LambdaFunction}/invocations"
+
+    LambdaExecutor:
+        Type: AWS::IAM::Role
+        Description: Role to allow Lambda basic access to VPC
+        Properties:
+            AssumeRolePolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                    - Effect: Allow
+                      Principal:
+                          Service:
+                            - lambda.amazonaws.com
+                      Action: 
+                        - "sts:AssumeRole"
+            ManagedPolicyArns:
+                - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+            RoleName: !Sub ${ApplicationName}-lambda-executor
+
+    # Explicit log group that refers to the Lambda function
+    LogGroup:
+        Type: AWS::Logs::LogGroup
+        DeletionPolicy: Delete
+        Properties:
+            LogGroupName: !Sub "/aws/lambda/${LambdaFunction}"
+            # Explicit retention time
+            RetentionInDays: 7
