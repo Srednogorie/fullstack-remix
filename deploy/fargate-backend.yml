@@ -135,6 +135,7 @@ Resources:
     # Avoid race condition between ECS service creation and associating
     # the target group with the LB
     DependsOn: PublicLoadBalancerListener
+    DeletionPolicy: Delete
     Properties:
       ServiceName: !Ref ApplicationName
       Cluster: !Sub ${ApplicationName}-cluster
