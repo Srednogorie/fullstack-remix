@@ -271,3 +271,14 @@ Resources:
       LogGroupName: !Sub "/aws/fargate/${ApplicationName}"
       # Explicit retention time
       RetentionInDays: 7
+
+  Route53RecordSet:
+    Type: "AWS::Route53::RecordSet"
+    Properties:
+      Name: "paca.middle4.net."
+      Type: "CNAME"
+      TTL: 300
+      ResourceRecords: 
+        - !GetAtt PublicLoadBalancer.DNSName
+      # Move this to parameter
+      HostedZoneId: "Z03365863LDSINY686341"
