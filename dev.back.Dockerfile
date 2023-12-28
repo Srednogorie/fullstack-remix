@@ -1,12 +1,14 @@
-FROM public.ecr.aws/lambda/python:3.11
+FROM python:3.11
 
-RUN yum install vim-enhanced -y
+RUN apt update
+RUN apt install vim which -y
 
-RUN mkdir -p /var/task/
-COPY ./backend/pyproject.toml ./backend/poetry.lock /var/task/
+WORKDIR /code
+COPY /backend /code
 
 RUN curl -sSL https://install.python-poetry.org | python3.11 -
 RUN cp $HOME/.local/bin/poetry /usr/local/bin
-WORKDIR /var/task/
+
+ENV PYTHONPATH "${PYTHONPATH}:/code"
 RUN poetry config virtualenvs.create false
 RUN poetry install

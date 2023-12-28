@@ -1,6 +1,7 @@
 FROM python:3.11
 
-# RUN yum install which -y
+RUN apt update
+RUN apt install vim which -y
 
 WORKDIR /code
 COPY /backend /code
@@ -8,11 +9,6 @@ COPY /backend /code
 RUN curl -sSL https://install.python-poetry.org | python3.11 -
 RUN cp $HOME/.local/bin/poetry /usr/local/bin
 
+ENV PYTHONPATH "${PYTHONPATH}:/code"
 RUN poetry config virtualenvs.create false
 RUN poetry install
-
-# Expose the port on which the application will run
-EXPOSE 8000
-
-# Run the FastAPI application using uvicorn server
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0"]

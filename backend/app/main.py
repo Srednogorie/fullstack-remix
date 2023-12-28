@@ -1,23 +1,29 @@
 import os
+import debugpy
+
+import boto3
+from botocore.exceptions import ClientError
 
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 
 from fastapi.exceptions import HTTPException as StarletteHTTPException
 from fastapi.exceptions import RequestValidationError
-
+import uvicorn
+import sys
+print(sys.path)
 from app.routers import note_router
 from app.utils.ws_manager import WsConnectionManager
 
-from .config.users import (
+from app.config.users import (
     cookie_auth_backend, fastapi_users, google_cookie_auth_backend,
     google_oauth_client
 )
 
-from .schemas.user_schema import (
+from app.schemas.user_schema import (
     UserCreate, UserRead, UserReadRegister, UserUpdate
 )
-from .utils.app_exceptions import AppExceptionCase, app_exception_handler
-from .utils.request_exceptions import (
+from app.utils.app_exceptions import AppExceptionCase, app_exception_handler
+from app.utils.request_exceptions import (
     http_exception_handler, request_validation_exception_handler
 )
 
@@ -155,3 +161,32 @@ async def websocket_endpoint(websocket: WebSocket):
         ws_manager.disconnect(websocket)
 
 # handler = Mangum(app, dsn=DSN_URL)
+        
+
+def download_ssl_certificates():
+    s3 = boto3.client('s3')
+    for file in ["privkey.pem", "fullchain.pem"]:
+        s3.download_file("middle4-ssl-certificates", file, file)
+
+
+if __name__ == "__main__":
+    if os.getenv("DEV_ENVIRONMENT") == "development":
+        debugpy.listen(("0.0.0.0", 5678))
+        debugpy.wait_for_client()
+        uvicorn.run(
+            app,
+            host="0.0.0.0",
+            port=8000,
+            ssl_keyfile="/run/secrets/key",
+            ssl_certfile="/run/secrets/cert",
+        )
+    else:
+        # Download SSL certificates
+        download_ssl_certificates()
+        uvicorn.run(
+            app,
+            host="0.0.0.0",
+            port=8000,
+            ssl_keyfile="/code/privkey.pem",
+            ssl_certfile="/code/fullchain.pem",
+        )

@@ -22,20 +22,13 @@ services:
     env_file:
       - .env.back.dev
     volumes:
-      - ./backend:/var/task
-    command: >
-      sh -c "
-      python /var/lang/lib/python3.11/site-packages/debugpy --wait-for-client --listen 0.0.0.0:5678 
-      -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload 
-      --ssl-keyfile=/run/secrets/key 
-      --ssl-certfile=/run/secrets/cert
-      "
+      - ./backend:/code
     ports:
       - 8000:8000
       - 5678:5678
     tty: true
     stdin_open: true
-    entrypoint: [""]
+    entrypoint: ["python", "app/main.py"]
     depends_on:
       - postgres
 
