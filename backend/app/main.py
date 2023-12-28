@@ -162,12 +162,11 @@ async def websocket_endpoint(websocket: WebSocket):
         ws_manager.disconnect(websocket)
 
 # handler = Mangum(app, dsn=DSN_URL)
-        
 
-def download_ssl_certificates():
-    s3 = boto3.client('s3')
-    for file in ["privkey.pem", "cert.pem"]:
-        s3.download_file("middle4-ssl-certificates", file, file)
+# def download_ssl_certificates():
+#     s3 = boto3.client('s3')
+#     for file in ["privkey.pem", "cert.pem"]:
+#         s3.download_file("middle4-ssl-certificates", file, file)
 
 
 if __name__ == "__main__":
@@ -183,11 +182,11 @@ if __name__ == "__main__":
         )
     else:
         # Download SSL certificates
-        download_ssl_certificates()
+        # download_ssl_certificates()
         uvicorn.run(
             app,
             host="0.0.0.0",
             port=8000,
-            ssl_keyfile="/code/privkey.pem",
-            ssl_certfile="/code/cert.pem",
+            # ssl_keyfile="/code/privkey.pem",
+            # ssl_certfile="/code/cert.pem",
         )
