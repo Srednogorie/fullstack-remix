@@ -27,7 +27,7 @@ Parameters:
     Description: What port that the application expects traffic on
   ListenerPort:
     Type: Number
-    Default: 80
+    Default: 443
     Description: What port that the load balancer listener expects traffic on
   DesiredCount:
     Type: Number
