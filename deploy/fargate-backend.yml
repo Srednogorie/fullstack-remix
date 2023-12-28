@@ -204,12 +204,12 @@ Resources:
     Properties:
       HealthCheckIntervalSeconds: 10
       HealthCheckPath: /
-      HealthCheckProtocol: HTTP
+      HealthCheckProtocol: HTTPS  
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
       TargetType: ip
       Port: !Ref AppContainerPort
-      Protocol: HTTP
+      Protocol: HTTPS
       UnhealthyThresholdCount: 10
       VpcId: !Ref VpcId
       TargetGroupAttributes:
@@ -257,7 +257,7 @@ Resources:
                 Weight: 100
       LoadBalancerArn: !Ref 'PublicLoadBalancer'
       Port: !Ref ListenerPort
-      Protocol: HTTP
+      Protocol: HTTPS
 
   # Open up the service's security group to traffic originating
   # from the security group of the load balancer.
