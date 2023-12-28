@@ -9,6 +9,7 @@ from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.exceptions import HTTPException as StarletteHTTPException
 from fastapi.exceptions import RequestValidationError
 import uvicorn
+# TODO remove
 import sys
 print(sys.path)
 from app.routers import note_router
