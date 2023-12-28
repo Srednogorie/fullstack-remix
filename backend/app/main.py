@@ -166,7 +166,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
 def download_ssl_certificates():
     s3 = boto3.client('s3')
-    for file in ["privkey.pem", "fullchain.pem"]:
+    for file in ["privkey.pem", "cert.pem"]:
         s3.download_file("middle4-ssl-certificates", file, file)
 
 
@@ -189,5 +189,5 @@ if __name__ == "__main__":
             host="0.0.0.0",
             port=8000,
             ssl_keyfile="/code/privkey.pem",
-            ssl_certfile="/code/fullchain.pem",
+            ssl_certfile="/code/cert.pem",
         )
