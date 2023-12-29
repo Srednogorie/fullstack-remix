@@ -1,6 +1,6 @@
-import { cssBundleHref } from "@remix-run/css-bundle";
-import styles from "./styles/tailwind.css";
-import type { LinksFunction } from "@remix-run/node";
+import { cssBundleHref } from "@remix-run/css-bundle"
+import styles from "./styles/tailwind.css"
+import type { LinksFunction } from "@remix-run/node"
 import {
   Links,
   LiveReload,
@@ -10,8 +10,8 @@ import {
   ScrollRestoration,
   isRouteErrorResponse,
   useRouteError,
-} from "@remix-run/react";
-import MainNavigation from "./components/MainNavigation";
+} from "@remix-run/react"
+import MainNavigation from "./components/MainNavigation"
 
 export default function App() {
   return (

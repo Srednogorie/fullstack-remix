@@ -22,7 +22,7 @@ export default function NotesPage() {
 }
 
 export async function loader() {
-    const notes: Promise<[Note]> = axios.get("https://0.0.0.0:8000/notes/")
+    const notes: Promise<[Note]> = axios.get("/notes")
       .then((data) => data.data)
       .catch((error) => {
         // This will trigger the catch boundary
@@ -45,7 +45,7 @@ export async function action({request}: ActionFunctionArgs) {
         return json({ error: "Invalid title" })
     }
     // headers: {'X-Requested-With': 'XMLHttpRequest'}
-    await axios.post("https://0.0.0.0:8000/notes/", noteData, {
+    await axios.post("/notes", noteData, {
       headers: {'X-Requested-With': 'XMLHttpRequest'}
     })
       .then((data) => {

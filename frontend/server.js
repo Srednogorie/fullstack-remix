@@ -1,13 +1,14 @@
-import * as fs from "node:fs";
-import * as path from "node:path";
-import * as url from "node:url";
+import * as fs from "node:fs"
+import * as path from "node:path"
+import * as url from "node:url"
 
-import { createRequestHandler } from "@remix-run/express";
-import { broadcastDevReady, installGlobals } from "@remix-run/node";
-import compression from "compression";
-import https from "https";  
-import express from "express";
-import morgan from "morgan";
+import axios from "axios"
+import { createRequestHandler } from "@remix-run/express"
+import { broadcastDevReady, installGlobals } from "@remix-run/node"
+import compression from "compression"
+import https from "https"
+import express from "express"
+import morgan from "morgan"
 import sourceMapSupport from "source-map-support"
 
 sourceMapSupport.install({
@@ -61,7 +62,9 @@ app.use(morgan("tiny"));
 app.all("*", remixHandler);
 
 const port = process.env.PORT || 3000
+let baseURL
 if (process.env.NODE_ENV === "development") {
+  // Locally get the certs from files 
   const key = fs.readFileSync(
     '/Users/apple/Development/ssl/localhost_certs/local-docker-key.pem'
   )
@@ -70,20 +73,30 @@ if (process.env.NODE_ENV === "development") {
   )
   https.createServer({ key, cert }, app).listen(port, async () => {
     console.log(`Express server listening on port ${port}`)
-
-    if (process.env.NODE_ENV === "development") {
-      broadcastDevReady(initialBuild);
-    }
+    broadcastDevReady(initialBuild)
   })
+  baseURL = 'https://0.0.0.0:8000'
 } else if (process.env.NODE_ENV === "production") {
-  app.listen(port, async () => {
-    console.log(`Express server listening on port ${port}`)
+  // Local production build
+  if (process.env.NODE_EXTRA_CA_CERTS === "/run/secrets/root") {
+    // Local prod build will load the certs
+    const key = fs.readFileSync('/run/secrets/key')
+    const cert = fs.readFileSync('/run/secrets/cert')
 
-    if (process.env.NODE_ENV === "development") {
-      broadcastDevReady(initialBuild);
-    }
-  })
+    https.createServer({ key, cert }, app).listen(port, async () => {
+      console.log(`Express server listening on port ${port}`)
+    })
+    baseURL = 'https://host.docker.internal:8000'
+  } else {
+    app.listen(port, async () => {
+      console.log(`Express server listening on port ${port}`)
+    })
+    baseURL = 'https://paca.middle4.net'
+  }
 }
+axios.defaults.baseURL = baseURL
+// axios.defaults.headers.common['Authorization'] = AUTH_TOKEN
+// axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
 
 /**
  * @returns {Promise<ServerBuild>}
