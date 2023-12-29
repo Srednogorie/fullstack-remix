@@ -162,3 +162,10 @@ cython_debug/
 
 # Others
 .DS_store
+
+# Frontend
+node_modules
+
+/.cache
+/build
+/public/build

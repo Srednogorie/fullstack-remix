@@ -21,4 +21,3 @@ COPY --from=prod-deps --chown=remix:remix /app/server.js ./
 COPY --from=prod-deps --chown=remix:remix /app/node_modules ./node_modules
 COPY --from=builder --chown=remix:remix /app/build ./build
 COPY --from=builder --chown=remix:remix /app/public ./public
-CMD ["npm", "run", "start"]
