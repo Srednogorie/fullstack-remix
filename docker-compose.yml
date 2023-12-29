@@ -5,10 +5,8 @@ services:
     image: postgres
     ports:
       - 5432:5432
-    environment:
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_DB=fullstack-remix
+    env_file:
+      - ./backend/.env
     
   backend:
     build:
@@ -20,7 +18,7 @@ services:
       - key
       - cert
     env_file:
-      - .env.back.dev
+      - ./backend/.env
     volumes:
       - ./backend:/code
     ports:
@@ -36,9 +34,8 @@ services:
     build:
       context: .
       dockerfile: ./front.fargate.Dockerfile
-    environment:
-      - NODE_EXTRA_CA_CERTS=/run/secrets/root
-      - REMIX_SECRET=__CHANGE_ME__
+    env_file:
+      - ./frontend/.env
     secrets:
       - key
       - cert
