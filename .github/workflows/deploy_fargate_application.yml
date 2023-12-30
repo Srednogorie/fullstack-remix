@@ -74,7 +74,7 @@ jobs:
       id: fargate-frontend-cluster
       uses: aws-actions/aws-cloudformation-github-deploy@master
       with:
-        # TODO that "-cluster" suffix!!!??
+        # TODO that "-cluster" suffix again!!!?
         name: ${{ github.event.inputs.applicationName }}-fargate-frontend-cluster
         template: deploy/fargate-frontend.yml
         no-fail-on-empty-changeset: "1"
