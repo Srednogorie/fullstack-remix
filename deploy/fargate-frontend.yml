@@ -123,7 +123,9 @@ Resources:
               # What is this
               awslogs-stream-prefix: !Sub "${ApplicationName}/frontend-app"
           Command:
-            - npm run start
+            - npm
+            - run
+            - start
   # The service. The service is a resource which allows you to run multiple
   # copies of a type of task, and gather up their logs and metrics, as well
   # as monitor the number of running tasks and replace any that have crashed
