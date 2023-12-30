@@ -29,46 +29,46 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ github.event.inputs.region }}
 
-    # - name: Create ECR repository cluster
-    #   id: ecr-cluster
-    #   uses: aws-actions/aws-cloudformation-github-deploy@master
-    #   with:
-    #     name: ${{ github.event.inputs.applicationName }}-repository-cluster
-    #     template: deploy/repository.yml
-    #     no-fail-on-empty-changeset: "1"
-    #     parameter-overrides: "file:///${{ github.workspace }}/deploy/parameters.json"
+    - name: Create ECR repository cluster
+      id: ecr-cluster
+      uses: aws-actions/aws-cloudformation-github-deploy@master
+      with:
+        name: ${{ github.event.inputs.applicationName }}-repository-cluster
+        template: deploy/repository.yml
+        no-fail-on-empty-changeset: "1"
+        parameter-overrides: "file:///${{ github.workspace }}/deploy/parameters.json"
 
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    # - name: Build, tag, and push the backend image to ECR
-    #   env:
-    #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-    #     ECR_REPOSITORY: ${{ github.event.inputs.applicationName }}
-    #     IMAGE_TAG: latest
-    #   run: |
-    #     docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:backend-$IMAGE_TAG . -f back.fargate.Dockerfile
-    #     docker push $ECR_REGISTRY/$ECR_REPOSITORY:backend-$IMAGE_TAG
+    - name: Build, tag, and push the backend image to ECR
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: ${{ github.event.inputs.applicationName }}
+        IMAGE_TAG: latest
+      run: |
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:backend-$IMAGE_TAG . -f back.fargate.Dockerfile
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:backend-$IMAGE_TAG
 
-    # - name: Build, tag, and push the frontend image to ECR
-    #   env:
-    #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-    #     ECR_REPOSITORY: ${{ github.event.inputs.applicationName }}
-    #     IMAGE_TAG: latest
-    #   run: |
-    #     docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:frontend-$IMAGE_TAG . -f front.fargate.Dockerfile
-    #     docker push $ECR_REGISTRY/$ECR_REPOSITORY:frontend-$IMAGE_TAG
+    - name: Build, tag, and push the frontend image to ECR
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: ${{ github.event.inputs.applicationName }}
+        IMAGE_TAG: latest
+      run: |
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:frontend-$IMAGE_TAG . -f front.fargate.Dockerfile
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:frontend-$IMAGE_TAG
 
-    # - name: Deploy Fargate Backend Cluster
-    #   id: fargate-backend-cluster
-    #   uses: aws-actions/aws-cloudformation-github-deploy@master
-    #   with:
-    #     name: ${{ github.event.inputs.applicationName }}-fargate-backend-cluster
-    #     template: deploy/fargate-backend.yml
-    #     no-fail-on-empty-changeset: "1"
-    #     capabilities: CAPABILITY_NAMED_IAM
-    #     parameter-overrides: "file:///${{ github.workspace }}/deploy/parameters.json"
+    - name: Deploy Fargate Backend Cluster
+      id: fargate-backend-cluster
+      uses: aws-actions/aws-cloudformation-github-deploy@master
+      with:
+        name: ${{ github.event.inputs.applicationName }}-fargate-backend-cluster
+        template: deploy/fargate-backend.yml
+        no-fail-on-empty-changeset: "1"
+        capabilities: CAPABILITY_NAMED_IAM
+        parameter-overrides: "file:///${{ github.workspace }}/deploy/parameters.json"
 
     - name: Deploy Fargate Frontend Cluster
       id: fargate-frontend-cluster
