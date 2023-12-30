@@ -6,6 +6,7 @@ on:
       region:
         description: 'AWS Region'
         required: true
+        # TODO region again
         default: 'eu-central-1'
       applicationName:
         description: 'The name of your application will be used for naming AWS resources'
@@ -59,12 +60,23 @@ jobs:
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:frontend-$IMAGE_TAG . -f front.fargate.Dockerfile
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:frontend-$IMAGE_TAG
 
-    - name: Deploy Fargate Cluster
-      id: fargate-cluster
+    - name: Deploy Fargate Backend Cluster
+      id: fargate-backend-cluster
       uses: aws-actions/aws-cloudformation-github-deploy@master
       with:
         name: ${{ github.event.inputs.applicationName }}-fargate-backend-cluster
         template: deploy/fargate-backend.yml
+        no-fail-on-empty-changeset: "1"
+        capabilities: CAPABILITY_NAMED_IAM
+        parameter-overrides: "file:///${{ github.workspace }}/deploy/parameters.json"
+
+    - name: Deploy Fargate Frontend Cluster
+      id: fargate-frontend-cluster
+      uses: aws-actions/aws-cloudformation-github-deploy@master
+      with:
+        # TODO that "-cluster" suffix!!!??
+        name: ${{ github.event.inputs.applicationName }}-fargate-frontend-cluster
+        template: deploy/fargate-frontend.yml
         no-fail-on-empty-changeset: "1"
         capabilities: CAPABILITY_NAMED_IAM
         parameter-overrides: "file:///${{ github.workspace }}/deploy/parameters.json"

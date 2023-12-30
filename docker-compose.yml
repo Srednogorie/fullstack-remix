@@ -26,9 +26,16 @@ services:
       - 5678:5678
     tty: true
     stdin_open: true
-    entrypoint: ["python", "app/main.py"]
     depends_on:
       - postgres
+    command:
+      - /bin/sh
+      - -c
+      - >-
+        echo 'Alembic migration'
+        && alembic upgrade head
+        && echo 'Starting server'
+        && python app/main.py
 
   fe-prod-build:
     build:

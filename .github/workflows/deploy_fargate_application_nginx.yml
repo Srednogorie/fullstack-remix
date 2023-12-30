@@ -6,6 +6,7 @@ on:
       region:
         description: 'AWS Region'
         required: true
+        # TODO region again
         default: 'eu-central-1'
       applicationName:
         description: 'The name of your application will be used for naming AWS resources'

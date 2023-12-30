@@ -39,7 +39,7 @@ Resources:
   ECSCluster:
     Type: AWS::ECS::Cluster
     Properties:
-      ClusterName: !Sub ${ApplicationName}-cluster
+      ClusterName: !Sub ${ApplicationName}-backend-cluster
 
   # This is a role which is used within Fargate to allow the Fargate agent
   # to download images, and upload logs.
@@ -57,6 +57,7 @@ Resources:
                 aws:SourceArn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:*
               StringEquals:
                 aws:SourceAccount: !Ref AWS::AccountId
+      # TODO What is this for?
       Path: /
 
       # This role enables basic features of ECS. See reference:
@@ -125,12 +126,13 @@ Resources:
               max-buffer-size: 25m
               awslogs-group: !Ref AppLogGroup
               awslogs-region: !Ref AWS::Region
-              awslogs-stream-prefix: !Sub "${ApplicationName}/app"
+              awslogs-stream-prefix: !Sub "${ApplicationName}/backend-app"
           Environment:
             - Name: DB_ADDRESS
               Value: !Ref DbAddress
             - Name: DB_PORT
               Value: !Ref DbPort
+              # TODO region again
             - Name: AWS_DEFAULT_REGION
               Value: !Sub "eu-central-1"
           Secrets:
@@ -169,7 +171,7 @@ Resources:
     DependsOn: PublicLoadBalancerListener
     Properties:
       ServiceName: !Ref ApplicationName
-      Cluster: !Sub ${ApplicationName}-cluster
+      Cluster: !Sub ${ApplicationName}-backend-cluster
       LaunchType: FARGATE
       NetworkConfiguration:
         AwsvpcConfiguration:
@@ -240,7 +242,8 @@ Resources:
       LoadBalancerAttributes:
       - Key: idle_timeout.timeout_seconds
         Value: '30'
-      Subnets: 
+      Subnets:
+        # Move this to parameter
         - subnet-3cb7fc55
         - subnet-9e8de3e5
       SecurityGroups:
@@ -259,6 +262,7 @@ Resources:
       Port: !Ref ListenerPort
       Protocol: HTTPS
       Certificates:
+        # Move this to parameter
         - CertificateArn: arn:aws:acm:eu-central-1:042533097213:certificate/6082a673-6d76-4caa-a8ca-9a628bbbdc17
 
   # Open up the service's security group to traffic originating
@@ -276,13 +280,14 @@ Resources:
     Type: AWS::Logs::LogGroup
     DeletionPolicy: Delete
     Properties:
-      LogGroupName: !Sub "/aws/fargate/${ApplicationName}"
+      LogGroupName: !Sub "/aws/fargate/${ApplicationName}-backend"
       # Explicit retention time
       RetentionInDays: 7
 
   Route53RecordSet:
     Type: "AWS::Route53::RecordSet"
     Properties:
+      # Move this to parameter - front & back?
       Name: "paca.middle4.net."
       Type: "CNAME"
       TTL: 300
