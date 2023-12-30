@@ -7,12 +7,6 @@ Parameters:
   ApplicationName:
     Type: String
     Description: Name of the application. This is consistent across the stacks.
-  DbAddress:
-    Type: AWS::SSM::Parameter::Value<String>
-    Default: /default/db/db-address
-  DbPort:
-    Type: AWS::SSM::Parameter::Value<String>
-    Default: /default/db/db-port
   ContainerCpu:
     Type: Number
     Default: 256
@@ -23,7 +17,7 @@ Parameters:
     Description: How much memory in megabytes to give the container
   AppContainerPort:
     Type: Number
-    Default: 8000
+    Default: 3000
     Description: What port that the application expects traffic on
   ListenerPort:
     Type: Number
