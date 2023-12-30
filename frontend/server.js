@@ -79,6 +79,7 @@ if (process.env.NODE_ENV === "development") {
 } else if (process.env.NODE_ENV === "production") {
   // Local production build
   if (process.env.NODE_EXTRA_CA_CERTS === "/run/secrets/root") {
+    console.log("RUNNING LOCAL PRODUCTION")
     // Local prod build will load the certs
     const key = fs.readFileSync('/run/secrets/key')
     const cert = fs.readFileSync('/run/secrets/cert')
@@ -88,6 +89,7 @@ if (process.env.NODE_ENV === "development") {
     })
     baseURL = 'https://host.docker.internal:8000'
   } else {
+    console.log("RUNNING PRODUCTION")
     app.listen(port, async () => {
       console.log(`Express server listening on port ${port}`)
     })
