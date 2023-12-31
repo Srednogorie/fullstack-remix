@@ -19,7 +19,7 @@ export default function NoteDetailPage() {
 }
 
 export async function loader({params}: LoaderFunctionArgs) {
-    const note: Promise<Note> = axios.get(`/notes/${params.id}/`)
+    const note: Promise<Note> = axios.get(`/notes/${params.id}`)
         .then((data) => data.data)
         .catch((error) => {
             // This will trigger the catch boundary
