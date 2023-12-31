@@ -1,16 +1,18 @@
 // import WebSocket from 'ws'
 
+import { useLoaderData } from "@remix-run/react"
 import { useEffect, useState } from "react"
 
 const Ws = () => {
     const [socket, setSocket] = useState(null)
     const [message, setMessage] = useState("")
     const [messages, setMessages] = useState([])
+    const baseWsURL = useLoaderData<typeof loader>()
 
     useEffect(() => {
-        const newSocket = new WebSocket("wss://0.0.0.0:8000/ws")
-        setSocket(newSocket)
-        return () => newSocket.close()
+      const newSocket = new WebSocket(`${baseWsURL}/ws`)
+      setSocket(newSocket)
+      return () => newSocket.close()
     }, [])
 
 
@@ -28,6 +30,10 @@ const Ws = () => {
         socket.onclose = function (event) {
             console.log("WebSocket closed")
         }
+
+        socket.onerror = function (event) {
+          console.log(event);
+        };
 
         return () => {
             socket.close()
@@ -71,6 +77,10 @@ const Ws = () => {
           </div>
         </div>
     )
+}
+
+export async function loader() {
+  return process.env.BASE_WS_URL
 }
 
 export default Ws

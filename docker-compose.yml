@@ -37,24 +37,8 @@ services:
         && echo 'Starting server'
         && python app/main.py
 
-  fe-prod-build:
-    build:
-      context: .
-      dockerfile: ./front.fargate.Dockerfile
-    env_file:
-      - ./frontend/.env
-    secrets:
-      - key
-      - cert
-      - root
-    ports:
-      - 3000:3000
-    entrypoint: ["npm", "run", "start"]
-
 secrets:
   key:
     file: ~/Development/ssl/localhost_certs/local-docker-key.pem
   cert:
     file: ~/Development/ssl/localhost_certs/local-docker-cert.pem
-  root:
-    file: ~/Library/Application Support/mkcert/rootCA.pem

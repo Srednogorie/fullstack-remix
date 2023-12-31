@@ -22,7 +22,6 @@ export default function NotesPage() {
 }
 
 export async function loader() {
-    console.log(axios.defaults.baseURL)
     const notes: Promise<[Note]> = axios.get("/notes/")
       .then((data) => data.data)
       .catch((error) => {
@@ -46,7 +45,7 @@ export async function action({request}: ActionFunctionArgs) {
         return json({ error: "Invalid title" })
     }
     // headers: {'X-Requested-With': 'XMLHttpRequest'}
-    await axios.post("/notes", noteData, {
+    await axios.post("/notes/", noteData, {
       headers: {'X-Requested-With': 'XMLHttpRequest'}
     })
       .then((data) => {

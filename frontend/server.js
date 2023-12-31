@@ -62,41 +62,24 @@ app.use(morgan("tiny"));
 app.all("*", remixHandler);
 
 const port = process.env.PORT || 3000
-let baseURL
-if (process.env.NODE_ENV === "development") {
-  // Locally get the certs from files 
-  const key = fs.readFileSync(
-    '/Users/apple/Development/ssl/localhost_certs/local-docker-key.pem'
-  )
-  const cert = fs.readFileSync(
-    '/Users/apple/Development/ssl/localhost_certs/local-docker-cert.pem'
-  )
+// The local ssl certificates are available only locally. The start-local
+// script will load them too so we can test the production build locally.
+// This means that we still can have the local certs but in production mode.
+if (process.env.LOCAL_SSL_KEY && process.env.LOCAL_SSL_CERT) {
+  const key = fs.readFileSync(process.env.LOCAL_SSL_KEY)
+  const cert = fs.readFileSync(process.env.LOCAL_SSL_CERT)
   https.createServer({ key, cert }, app).listen(port, async () => {
     console.log(`Express server listening on port ${port}`)
-    broadcastDevReady(initialBuild)
   })
-  baseURL = 'https://0.0.0.0:8000'
-} else if (process.env.NODE_ENV === "production") {
-  // Local production build
-  if (process.env.NODE_EXTRA_CA_CERTS === "/run/secrets/root") {
-    console.log("RUNNING LOCAL PRODUCTION")
-    // Local prod build will load the certs
-    const key = fs.readFileSync('/run/secrets/key')
-    const cert = fs.readFileSync('/run/secrets/cert')
-
-    https.createServer({ key, cert }, app).listen(port, async () => {
-      console.log(`Express server listening on port ${port}`)
-    })
-    baseURL = 'https://host.docker.internal:8000'
-  } else {
-    console.log("RUNNING PRODUCTION")
-    app.listen(port, async () => {
-      console.log(`Express server listening on port ${port}`)
-    })
-    baseURL = 'https://paca.middle4.net'
+  if (process.env.NODE_ENV === "development") {
+    broadcastDevReady(initialBuild)
   }
+} else if (process.env.NODE_ENV === "production") {
+  app.listen(port, async () => {
+    console.log(`Express server listening on port ${port}`)
+  })
 }
-axios.defaults.baseURL = baseURL
+axios.defaults.baseURL = process.env.BASE_URL
 // axios.defaults.headers.common['Authorization'] = AUTH_TOKEN
 // axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
 

@@ -122,6 +122,13 @@ Resources:
               awslogs-region: !Ref AWS::Region
               # What is this
               awslogs-stream-prefix: !Sub "${ApplicationName}/frontend-app"
+          Environment:
+            - Name: BASE_URL
+              Value: https://paca.middle4.net
+            - Name: BASE_WS_URL
+              Value: wss://paca.middle4.net
+            - Name: REMIX_SECRET
+              Value: __CHANGE_ME__
           Command:
             - npm
             - run

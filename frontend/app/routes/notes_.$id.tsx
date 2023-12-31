@@ -1,6 +1,7 @@
 import { LinksFunction, LoaderFunctionArgs, MetaFunction, json } from "@remix-run/node"
 import { Link, useLoaderData } from "@remix-run/react"
 import styles from "app/styles/note-details.css"
+import axios from "axios"
 
 export default function NoteDetailPage() {
     const note: Note = useLoaderData()
@@ -18,11 +19,12 @@ export default function NoteDetailPage() {
 }
 
 export async function loader({params}: LoaderFunctionArgs) {
-    const note: Note = await fetch(`https://0.0.0.0:8000/notes/${params.id}`)
-
-    if (!note) {
-        throw json({message: 'Not such ID - ' + params.id}, {status: 404})
-    }
+    const note: Promise<Note> = axios.get(`/notes/${params.id}/`)
+        .then((data) => data.data)
+        .catch((error) => {
+            // This will trigger the catch boundary
+            throw json({message: `Loader exception ${error}`}, {status: 404})
+        })
 
     return note
 }
