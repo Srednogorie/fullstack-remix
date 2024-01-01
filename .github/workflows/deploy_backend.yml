@@ -1,4 +1,4 @@
-name: Deploy Fargate Application Ngiinx
+name: Deploy Backend
 
 on:
   workflow_dispatch:
@@ -11,11 +11,11 @@ on:
       applicationName:
         description: 'The name of your application will be used for naming AWS resources'
         required: true
-        default: 'change-me'
+        default: 'fullstack-remix'
 
 jobs:
   cluster:
-    name: Deploy stacks to AWS
+    name: Deploy backend stacks to AWS
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -42,30 +42,21 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    - name: Build, tag, and push the application image to ECR
+    - name: Build, tag, and push the backend image to ECR
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: ${{ github.event.inputs.applicationName }}
         IMAGE_TAG: latest
       run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG . -f prod.fargate.Dockerfile
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:backend-$IMAGE_TAG . -f back.fargate.Dockerfile
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:backend-$IMAGE_TAG
 
-    - name: Build, tag, and push the nginx image to ECR
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: ${{ github.event.inputs.applicationName }}
-        IMAGE_TAG: nginx_latest
-      run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG . -f deploy/nginx/Dockerfile
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-
-    - name: Deploy Fargate Cluster
-      id: fargate-cluster
+    - name: Deploy Fargate Backend Cluster
+      id: fargate-backend-cluster
       uses: aws-actions/aws-cloudformation-github-deploy@master
       with:
-        name: ${{ github.event.inputs.applicationName }}-fargate-cluster
-        template: deploy/fargate_nginx.yml
+        name: ${{ github.event.inputs.applicationName }}-fargate-backend-cluster
+        template: deploy/fargate-backend.yml
         no-fail-on-empty-changeset: "1"
         capabilities: CAPABILITY_NAMED_IAM
         parameter-overrides: "file:///${{ github.workspace }}/deploy/parameters.json"

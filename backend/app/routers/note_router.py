@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Request
+from fastapi import Request
 from app import schemas
 from app.models.note_model import Note
 from app.utils.service_result import handle_result
+from app.utils.custom_api_route import APIRouter
 
 router = APIRouter(prefix="/notes", tags=["notes"])
 
