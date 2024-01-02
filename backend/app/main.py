@@ -7,7 +7,6 @@ from fastapi.exceptions import HTTPException as StarletteHTTPException
 from fastapi.exceptions import RequestValidationError
 import uvicorn
 
-from app.routers import note_router
 from app.utils.ws_manager import WsConnectionManager
 
 from app.config.users import (
@@ -26,12 +25,6 @@ from app.utils.request_exceptions import (
 app = FastAPI()
 
 ws_manager = WsConnectionManager()
-
-# If running in a Lambda function only
-if os.getenv("ENV_MODE") == "lambda":
-    from mangum import Mangum
-    handler = Mangum(app)
-
 
 # TODO No any request to the API originate in the browser which means that
 # the CSRFMiddleware and the CORSMiddleware are no needed.
@@ -135,7 +128,7 @@ app.include_router(
 #     return {"message": f"Hello {user.email}!"}
 
 # Other routers
-app.include_router(note_router.router)
+# app.include_router(note_router.router)
 
 
 # Healthcheck
