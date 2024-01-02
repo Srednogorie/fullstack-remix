@@ -1,9 +1,0 @@
-/* Goes in the app/styles folder and then exported in root
-export const links: LinksFunction = () => [
-  ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
-  { rel: "stylesheet", href: styles },
-];
-*/
-@tailwind base;  /* Preflight will be injected here */
-@tailwind components;
-@tailwind utilities;
