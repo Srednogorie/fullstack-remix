@@ -4,7 +4,7 @@
 1. Optional - Create local certificates, they can be used for every next local project
 mkcert -cert-file local-docker-cert.pem -key-file local-docker-key.pem "docker.localhost" "*.docker.localhost" "domain.local" "*.domain.local" "127.0.0.1" "0.0.0.0"
 
-2. Choose name of your app, update settings.py, pyproject.toml and compose(POSTGRES_DB) using the same name.
+2. Choose name of your app, update settings.py, pyproject.toml and .env(POSTGRES_DB) using the same name.
 3. Create .env.dev fille and setup env variables, you will need at least BD_USER, BD_PASSWORD, DB_PORT & DB_ADDRESS.
 4. If using vscode in launch.json use the following snippet.
 {
@@ -28,6 +28,7 @@ mkcert -cert-file local-docker-cert.pem -key-file local-docker-key.pem "docker.l
 5. run "docker compose up development" then start the vscode launch configuration. The project is now available through https at port 8000
 
 <!-- Frontend -->
+Crate new project in the frontend folder - npx create-remix@latest --template remix-run/remix/templates/express
 1. Setup local ssl in server.js
 2. Setup tailwind - https://remix.run/docs/en/main/styling/tailwind
 3. Add types.ts to the app folder
