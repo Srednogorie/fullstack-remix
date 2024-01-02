@@ -27,5 +27,5 @@ mkcert -cert-file local-docker-cert.pem -key-file local-docker-key.pem "docker.l
 
 AWS Lambda Deploy
 1. In workflows deploy_lambda_application.yml update applicationName. Use hyphens i.e "application-name". This will be used to prefix the ECR and Lambda clusters also for a name of the ECR repository.
-2. In deploy/parameters.json update ApplicationName parameter, keep it consistent with the action, it is used for
-repository name in repository.yml and for Lambda function name, Lambda image url and for the Lambda executor Role name in lambda.yml
+2. In deploy/parameters.json update ApplicationName parameter, keep it consistent with the action, it is used across
+the stack template.

@@ -3,14 +3,9 @@ name: Deploy Backend
 on:
   workflow_dispatch:
     inputs:
-      region:
-        description: 'AWS Region'
-        required: true
-        # TODO region again
-        default: 'eu-central-1'
       applicationName:
         description: 'The name of your application will be used for naming AWS resources'
-        required: true
+        required: false
         default: 'fullstack-remix'
 
 jobs:
@@ -27,13 +22,13 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ github.event.inputs.region }}
+        aws-region: eu-central-1
 
     - name: Create ECR repository cluster
       id: ecr-cluster
       uses: aws-actions/aws-cloudformation-github-deploy@master
       with:
-        name: ${{ github.event.inputs.applicationName }}-repository-cluster
+        name: ${{ github.event.inputs.applicationName }}-repository
         template: deploy/repository.yml
         no-fail-on-empty-changeset: "1"
         parameter-overrides: "file:///${{ github.workspace }}/deploy/parameters.json"
@@ -55,7 +50,7 @@ jobs:
       id: fargate-backend-cluster
       uses: aws-actions/aws-cloudformation-github-deploy@master
       with:
-        name: ${{ github.event.inputs.applicationName }}-fargate-backend-cluster
+        name: ${{ github.event.inputs.applicationName }}-fargate-backend
         template: deploy/fargate-backend.yml
         no-fail-on-empty-changeset: "1"
         capabilities: CAPABILITY_NAMED_IAM

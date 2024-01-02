@@ -39,7 +39,7 @@ Resources:
   ECSCluster:
     Type: AWS::ECS::Cluster
     Properties:
-      ClusterName: !Sub ${ApplicationName}-backend-cluster
+      ClusterName: !Sub ${ApplicationName}-backend
 
   # This is a role which is used within Fargate to allow the Fargate agent
   # to download images, and upload logs.
@@ -161,7 +161,7 @@ Resources:
                 && echo 'Starting server'
                 && python app/main.py
 
-  # The service. The service is a resource which allows you to run multiple
+  # The service is a resource which allows you to run multiple
   # copies of a type of task, and gather up their logs and metrics, as well
   # as monitor the number of running tasks and replace any that have crashed
   Service:
@@ -171,7 +171,7 @@ Resources:
     DependsOn: PublicLoadBalancerListener
     Properties:
       ServiceName: !Ref ApplicationName
-      Cluster: !Sub ${ApplicationName}-backend-cluster
+      Cluster: !Sub ${ApplicationName}-backend
       LaunchType: FARGATE
       NetworkConfiguration:
         AwsvpcConfiguration:
@@ -181,6 +181,7 @@ Resources:
           Subnets:
             - subnet-3cb7fc55
             - subnet-9e8de3e5
+            - subnet-257d556f
       DeploymentConfiguration:
         MaximumPercent: 200
         MinimumHealthyPercent: 100
@@ -246,6 +247,7 @@ Resources:
         # Move this to parameter
         - subnet-3cb7fc55
         - subnet-9e8de3e5
+        - subnet-257d556f
       SecurityGroups:
         - !Ref PublicLoadBalancerSG
 
