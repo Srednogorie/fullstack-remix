@@ -173,15 +173,15 @@ Resources:
       ServiceName: !Ref ApplicationName
       Cluster: !Sub ${ApplicationName}-backend
       LaunchType: FARGATE
-      # NetworkConfiguration:
-      #   AwsvpcConfiguration:
-      #     AssignPublicIp: ENABLED
-      #     SecurityGroups:
-      #       - !Ref ServiceSecurityGroup
-      #     Subnets:
-      #       - subnet-3cb7fc55
-      #       - subnet-9e8de3e5
-      #       - subnet-257d556f
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          SecurityGroups:
+            - !Ref ServiceSecurityGroup
+          Subnets:
+            - subnet-3cb7fc55
+            - subnet-9e8de3e5
+            - subnet-257d556f
       DeploymentConfiguration:
         MaximumPercent: 200
         MinimumHealthyPercent: 100
