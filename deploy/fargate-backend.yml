@@ -233,6 +233,8 @@ Resources:
           CidrIp: 0.0.0.0/0
           # TODO try to allow access only from the frontend cluster
           # On next deploy of both services play with the inbounds ruse below
+          # Seems like the frontend should be deployed first, unless they are
+          # deployed together and the backend deleted firs. See ImportValue.
         - IpProtocol: tcp
           FromPort: 443
           ToPort: 443
