@@ -9,3 +9,22 @@ Resources:
         Properties:
             EmptyOnDelete: true
             RepositoryName: !Ref ApplicationName
+            LifecyclePolicy: 
+              LifecyclePolicyText: | 
+                {
+                  "rules": [
+                    {
+                      "rulePriority": 1,
+                      "description": "remove non latest images",
+                      "selection": {
+                        "tagStatus": "untagged",
+                        "countType": "imageCountMoreThan",
+                        "countNumber": 1
+                      },
+                      "action": {
+                        "type": "expire"
+                      }
+                    }
+                  ]
+                }
+              RegistryId: !Ref AWS::AccountId
