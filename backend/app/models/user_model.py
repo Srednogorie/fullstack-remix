@@ -9,7 +9,7 @@ from fastapi_users_db_sqlalchemy.access_token import (
 )
 from sqlalchemy import Column, String
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Mapped
 
 from app.config.database import get_db, mapper_registry
 from app.models.base import CreatedUpdateBase
@@ -26,6 +26,7 @@ class User(SQLAlchemyBaseUserTableUUID, CreatedUpdateBase):
     oauth_accounts: list[OAuthAccount] = relationship(
         "OAuthAccount", lazy="joined"
     )
+    expenses: Mapped[list["Expense"]] = relationship(back_populates="user")  # noqa
 
     __allow_unmapped__ = True
 

@@ -1,7 +1,7 @@
 import os
 from typing import AsyncGenerator
 
-from sqlalchemy import MetaData
+from sqlalchemy import MetaData, create_engine
 from app import settings
 
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession

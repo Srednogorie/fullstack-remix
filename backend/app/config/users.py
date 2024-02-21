@@ -2,12 +2,12 @@ from __future__ import print_function
 
 import os
 import uuid
-from typing import Optional
+from typing import Annotated, Optional
 
 import sib_api_v3_sdk
 from fastapi import Depends, Request
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin, models
-from fastapi_users.authentication import AuthenticationBackend, CookieTransport
+from fastapi_users.authentication import AuthenticationBackend, BearerTransport
 from fastapi_users.authentication.strategy import (
     AccessTokenDatabase, DatabaseStrategy
 )
@@ -133,19 +133,21 @@ async def get_user_manager(
     yield UserManager(user_db)
 
 
-class AutoRedirectCookieAuthentication(CookieTransport):
+class AutoRedirectBearerAuthentication(BearerTransport):
     async def get_login_response(self, user, response):
         await super().get_login_response(user, response)
         response.status_code = status.HTTP_302_FOUND
         response.headers["Location"] = "http://localhost:3000"
 
 
-cookie_transport = CookieTransport(
-    cookie_max_age=60, cookie_secure=True, cookie_samesite="none"
-)
-google_cookie_transport = AutoRedirectCookieAuthentication(
-    cookie_max_age=3600, cookie_secure=True, cookie_samesite="none"
-)
+# cookie_transport = CookieTransport(
+#     cookie_max_age=60, cookie_secure=True, cookie_samesite="none"
+# )
+# google_cookie_transport = AutoRedirectCookieAuthentication(
+#     cookie_max_age=3600, cookie_secure=True, cookie_samesite="none"
+# )
+
+bearer_transport = BearerTransport(tokenUrl="auth/bearer/login")
 
 
 def get_database_strategy(
@@ -154,19 +156,21 @@ def get_database_strategy(
     return DatabaseStrategy(access_token_db, lifetime_seconds=3600)
 
 
-cookie_auth_backend = AuthenticationBackend(
-    name="cookie",
-    transport=cookie_transport,
+bearer_auth_backend = AuthenticationBackend(
+    name="bearer",
+    transport=bearer_transport,
     get_strategy=get_database_strategy,
 )
-google_cookie_auth_backend = AuthenticationBackend(
-    name="cookie",
-    transport=google_cookie_transport,
+google_bearer_auth_backend = AuthenticationBackend(
+    name="google_bearer",
+    transport=bearer_transport,
     get_strategy=get_database_strategy,
 )
 
 fastapi_users = FastAPIUsers[User, uuid.UUID](
-    get_user_manager, [cookie_auth_backend]
+    get_user_manager, [bearer_auth_backend]
 )
 
 current_active_user = fastapi_users.current_user(active=True)
+current_superuser = fastapi_users.current_user(superuser=True)
+CurrentActiveUser = Annotated[User, Depends(current_active_user)]

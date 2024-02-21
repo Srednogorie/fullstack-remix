@@ -1,18 +1,24 @@
+from contextlib import asynccontextmanager
 import os
 import debugpy
 
-from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
+from fastapi import Depends, FastAPI, Request, WebSocket, WebSocketDisconnect
 
 from fastapi.exceptions import HTTPException as StarletteHTTPException
 from fastapi.exceptions import RequestValidationError
+from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
+from fastapi.openapi.utils import get_openapi
+from sqlalchemy import text
 import uvicorn
 
 from app.utils.ws_manager import WsConnectionManager
 
 from app.config.users import (
-    cookie_auth_backend, fastapi_users, google_cookie_auth_backend,
-    google_oauth_client
+    bearer_auth_backend, fastapi_users, google_bearer_auth_backend,
+    google_oauth_client, current_superuser
 )
+
+from app.routers import expense_router
 
 from app.schemas.user_schema import (
     UserCreate, UserRead, UserReadRegister, UserUpdate
@@ -21,8 +27,12 @@ from app.utils.app_exceptions import AppExceptionCase, app_exception_handler
 from app.utils.request_exceptions import (
     http_exception_handler, request_validation_exception_handler
 )
+from app.config.database import get_db_cm
 
-app = FastAPI()
+if os.getenv("DEV_ENVIRONMENT") == "development":
+    app = FastAPI()
+elif os.getenv("DEV_ENVIRONMENT") == "production":
+    app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 
 ws_manager = WsConnectionManager()
 
@@ -85,21 +95,22 @@ async def custom_app_exception_handler(request, e):
 
 
 # User routers
+# TODO requires verification must be true in production
 app.include_router(
     fastapi_users.get_auth_router(
-        cookie_auth_backend, requires_verification=True
+        bearer_auth_backend, requires_verification=False
     ),
-    prefix="/auth/cookie",
-    tags=["cookie_auth"]
+    prefix="/auth/bearer",
+    tags=["bearer_auth"]
 )
 app.include_router(
     fastapi_users.get_oauth_router(
         google_oauth_client,
-        google_cookie_auth_backend,
+        google_bearer_auth_backend,
         os.getenv("AUTH_VERIFICATION_SECRET"),
         associate_by_email=True
     ),
-    prefix="/auth/cookie/google", tags=["cookie_auth"],
+    prefix="/auth/bearer/google", tags=["bearer_auth"],
 )
 
 app.include_router(
@@ -128,13 +139,34 @@ app.include_router(
 #     return {"message": f"Hello {user.email}!"}
 
 # Other routers
-# app.include_router(note_router.router)
+app.include_router(expense_router.router)
 
 
 # Healthcheck
 @app.get("/")
 async def root(request: Request):
     return {"message": "Healthcheck"}
+
+if os.getenv("DEV_ENVIRONMENT") == "development":
+    @app.get("/url-list")
+    def get_all_urls(request: Request, user: str = Depends(current_superuser)):
+        url_list = [
+            {"path": route.path, "name": route.name}
+            for route in request.app.routes
+        ]
+        return url_list
+
+    @app.get("/docs")
+    async def get_documentation(user: str = Depends(current_superuser)):
+        return get_swagger_ui_html(openapi_url="/openapi.json", title="docs")
+
+    @app.get("/redoc")
+    async def get_redoc_documentation(user: str = Depends(current_superuser)):
+        return get_redoc_html(openapi_url="/openapi.json", title="docs")
+
+    @app.get("/openapi.json")
+    async def openapi(user: str = Depends(current_superuser)):
+        return get_openapi(title="FastAPI", version="0.1.0", routes=app.routes)
 
 
 # Websocket
@@ -155,11 +187,12 @@ if __name__ == "__main__":
         debugpy.listen(("0.0.0.0", 5678))
         debugpy.wait_for_client()
         uvicorn.run(
-            app,
+            "main:app",
             host="0.0.0.0",
             port=8000,
+            reload=True,
             ssl_keyfile="/run/secrets/key",
             ssl_certfile="/run/secrets/cert",
         )
-    else:
+    elif os.getenv("DEV_ENVIRONMENT") == "production":
         uvicorn.run(app, host="0.0.0.0", port=8000)

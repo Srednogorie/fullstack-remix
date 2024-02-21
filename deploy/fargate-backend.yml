@@ -13,6 +13,9 @@ Parameters:
   DbPort:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /default/db/db-port
+  DevEnvironment:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: production
   ContainerCpu:
     Type: Number
     Default: 256
@@ -33,16 +36,11 @@ Parameters:
     Type: Number
     Default: 1
     Description: How many copies of the service task to run
-
 Resources:
-  # ECS Resources
   ECSCluster:
     Type: AWS::ECS::Cluster
     Properties:
       ClusterName: !Sub ${ApplicationName}-backend
-
-  # This is a role which is used within Fargate to allow the Fargate agent
-  # to download images, and upload logs.
   ECSTaskExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -50,18 +48,16 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              Service: [ecs-tasks.amazonaws.com]
-            Action: ['sts:AssumeRole']
+              Service:
+                - ecs-tasks.amazonaws.com
+            Action:
+              - sts:AssumeRole
             Condition:
               ArnLike:
                 aws:SourceArn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:*
               StringEquals:
                 aws:SourceAccount: !Ref AWS::AccountId
-      # TODO What is this for?
       Path: /
-
-      # This role enables basic features of ECS. See reference:
-      # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/security-iam-awsmanpol.html#security-iam-awsmanpol-AmazonECSTaskExecutionRolePolicy
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
       Policies:
@@ -73,10 +69,7 @@ Resources:
                 Effect: Allow
                 Action:
                   - secretsmanager:GetSecretValue
-                Resource: "*"
-
-  # Allow the task to access the underlining resources so we connect to the 
-  # container from the cli
+                Resource: '*'
   ECSTaskConnectRole:
     Type: AWS::IAM::Role
     Properties:
@@ -84,8 +77,10 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              Service: [ecs-tasks.amazonaws.com]
-            Action: ['sts:AssumeRole']
+              Service:
+                - ecs-tasks.amazonaws.com
+            Action:
+              - sts:AssumeRole
       Policies:
         - PolicyName: AllowConnectToTask
           PolicyDocument:
@@ -98,10 +93,7 @@ Resources:
                   - ssmmessages:CreateDataChannel
                   - ssmmessages:OpenControlChannel
                   - ssmmessages:OpenDataChannel
-                Resource: "*"
-
-  # The task definition. This is a simple metadata description of what
-  # container(s) to run, and what resource requirements the task has
+                Resource: '*'
   TaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
@@ -114,60 +106,50 @@ Resources:
       ExecutionRoleArn: !Ref ECSTaskExecutionRole
       TaskRoleArn: !Ref ECSTaskConnectRole
       ContainerDefinitions:
-        # Application container
         - Name: app
-          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ApplicationName}:backend-latest"
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ApplicationName}:backend-latest
           PortMappings:
             - ContainerPort: !Ref AppContainerPort
           LogConfiguration:
-            LogDriver: 'awslogs'
+            LogDriver: awslogs
             Options:
               mode: non-blocking
               max-buffer-size: 25m
               awslogs-group: !Ref AppLogGroup
               awslogs-region: !Ref AWS::Region
-              awslogs-stream-prefix: !Sub "${ApplicationName}/backend-app"
+              awslogs-stream-prefix: !Sub ${ApplicationName}/backend-app
           Environment:
+            - Name: DEV_ENVIRONMENT
+              Value: !Ref DevEnvironment
             - Name: DB_ADDRESS
               Value: !Ref DbAddress
             - Name: DB_PORT
               Value: !Ref DbPort
-              # TODO region again
             - Name: AWS_DEFAULT_REGION
-              Value: !Sub "eu-central-1"
+              Value: !Sub eu-central-1
           Secrets:
             - Name: BREVO_API_KEY
-              ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:default/app-config-secrets-uGKK9M:brevo-api-key::"
+              ValueFrom: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:default/app-config-secrets-uGKK9M:brevo-api-key::'
             - Name: AUTH_VERIFICATION_SECRET
-              ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:default/app-config-secrets-uGKK9M:auth-verification-secret::"
+              ValueFrom: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:default/app-config-secrets-uGKK9M:auth-verification-secret::'
             - Name: GOOGLE_OAUTH_CLIENT_ID
-              ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:default/app-config-secrets-uGKK9M:google-oauth-client-id::"
+              ValueFrom: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:default/app-config-secrets-uGKK9M:google-oauth-client-id::'
             - Name: GOOGLE_OAUTH_CLIENT_SECRET
-              ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:default/app-config-secrets-uGKK9M:google-oauth-client-secret::"
+              ValueFrom: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:default/app-config-secrets-uGKK9M:google-oauth-client-secret::'
             - Name: DB_USER
-              ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:default/db-credentials-Gt4V0F:username::"
+              ValueFrom: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:default/db-credentials-Gt4V0F:username::'
             - Name: DB_PASSWORD
-              ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:default/db-credentials-Gt4V0F:password::"
+              ValueFrom: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:default/db-credentials-Gt4V0F:password::'
             - Name: AWS_ACCESS_KEY_ID
-              ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:default/db-credentials-Gt4V0F:aws-cli-key::"
+              ValueFrom: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:default/db-credentials-Gt4V0F:aws-cli-key::'
             - Name: AWS_SECRET_ACCESS_KEY
-              ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:default/db-credentials-Gt4V0F:aws-cli-secret::"
+              ValueFrom: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:default/db-credentials-Gt4V0F:aws-cli-secret::'
           Command:
-              - /bin/sh
-              - -c
-              - >-
-                echo 'Alembic migration'
-                && alembic upgrade head
-                && echo 'Starting server'
-                && python app/main.py
-
-  # The service is a resource which allows you to run multiple
-  # copies of a type of task, and gather up their logs and metrics, as well
-  # as monitor the number of running tasks and replace any that have crashed
+            - /bin/sh
+            - '-c'
+            - echo 'Alembic migration' && alembic upgrade head && echo 'Starting server' && python app/main.py
   Service:
     Type: AWS::ECS::Service
-    # Avoid race condition between ECS service creation and associating
-    # the target group with the LB
     DependsOn: PublicLoadBalancerListener
     Properties:
       ServiceName: !Ref ApplicationName
@@ -192,16 +174,11 @@ Resources:
           ContainerPort: !Ref AppContainerPort
           TargetGroupArn: !Ref ServiceTargetGroup
       EnableExecuteCommand: true
-
-  # Security group that limits network access
-  # to the task
   ServiceSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Security group for service
       VpcId: !Ref VpcId
-
-  # Keeps track of the list of tasks for the service
   ServiceTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
@@ -218,86 +195,66 @@ Resources:
       TargetGroupAttributes:
         - Key: deregistration_delay.timeout_seconds
           Value: 0
-
-  # A public facing load balancer, this is used as ingress for
-  # public facing internet traffic.
   PublicLoadBalancerSG:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Access to the public facing load balancer
       VpcId: !Ref VpcId
-      SecurityGroupIngress: 
+      SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
           CidrIp: 0.0.0.0/0
-          # TODO try to allow access only from the frontend cluster
-          # On next deploy of both services play with the inbounds ruse below
-          # Seems like the frontend should be deployed first, unless they are
-          # deployed together and the backend deleted firs. See ImportValue.
         - IpProtocol: tcp
           FromPort: 443
           ToPort: 443
           CidrIp: 0.0.0.0/0
-
   PublicLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
       Scheme: internet-facing
       LoadBalancerAttributes:
-      - Key: idle_timeout.timeout_seconds
-        Value: '30'
+        - Key: idle_timeout.timeout_seconds
+          Value: '30'
       Subnets:
-        # Move this to parameter
         - subnet-3cb7fc55
         - subnet-9e8de3e5
         - subnet-257d556f
       SecurityGroups:
         - !Ref PublicLoadBalancerSG
-
   PublicLoadBalancerListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
       DefaultActions:
-        - Type: 'forward'
+        - Type: forward
           ForwardConfig:
             TargetGroups:
               - TargetGroupArn: !Ref ServiceTargetGroup
                 Weight: 100
-      LoadBalancerArn: !Ref 'PublicLoadBalancer'
+      LoadBalancerArn: !Ref PublicLoadBalancer
       Port: !Ref ListenerPort
       Protocol: HTTPS
       Certificates:
-        # Move this to parameter
         - CertificateArn: arn:aws:acm:eu-central-1:042533097213:certificate/6082a673-6d76-4caa-a8ca-9a628bbbdc17
-
-  # Open up the service's security group to traffic originating
-  # from the security group of the load balancer.
   ServiceIngressFromLoadBalancer:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       Description: Ingress from the public ALB
       GroupId: !Ref ServiceSecurityGroup
       IpProtocol: -1
-      SourceSecurityGroupId: !GetAtt 'PublicLoadBalancerSG.GroupId'
-
-  # This log group stores the stdout logs from the app
+      SourceSecurityGroupId: !GetAtt PublicLoadBalancerSG.GroupId
   AppLogGroup:
     Type: AWS::Logs::LogGroup
     DeletionPolicy: Delete
     Properties:
-      LogGroupName: !Sub "/aws/fargate/${ApplicationName}-backend"
-      # Explicit retention time
+      LogGroupName: !Sub /aws/fargate/${ApplicationName}-backend
       RetentionInDays: 7
-
   Route53RecordSet:
-    Type: "AWS::Route53::RecordSet"
+    Type: AWS::Route53::RecordSet
     Properties:
-      # Move this to parameter - front & back?
-      Name: "paca.middle4.net."
-      Type: "CNAME"
+      Name: paca.middle4.net.
+      Type: CNAME
       TTL: 300
-      ResourceRecords: 
+      ResourceRecords:
         - !GetAtt PublicLoadBalancer.DNSName
-      # Move this to parameter
-      HostedZoneId: "Z03365863LDSINY686341"
+      HostedZoneId: Z03365863LDSINY686341
