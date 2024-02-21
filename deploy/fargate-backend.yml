@@ -14,7 +14,7 @@ Parameters:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /default/db/db-port
   DevEnvironment:
-    Type: AWS::SSM::Parameter::Value<String>
+    Type: String
     Default: production
   ContainerCpu:
     Type: Number
