@@ -5,7 +5,6 @@ import {
   Form as FrameworkForm, useActionData, useSubmit, useNavigation, Link 
 } from '@remix-run/react'
 import { z } from 'zod'
-import { logger } from '../../logger.server'
 
 const Form = createForm({ component: FrameworkForm, useNavigation, useSubmit, useActionData })
 
@@ -28,8 +27,7 @@ const SigninForm = () => {
       id="auth-form"
       onTransition={
         ({reset, formState}) => {
-          logger.warning(formState.errors)
-          console.log()
+          console.log(formState.errors)
           reset({"password": ""})
           // if ("_global" in formState.errors) {
             
