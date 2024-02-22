@@ -1,3 +1,10 @@
+<!-- Read here first -->
+1. create new remix app and copy whatever you need from v3
+2. the backend is so minimalistic that I decided not to clear it up,
+remove the things you don't need.
+3. Look for env files in the local expenses folder, the frontend file is in the root of the project
+4. Look at the instructions below
+
 # fullstack-remix
 
 <!-- Backend -->
