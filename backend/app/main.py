@@ -8,6 +8,7 @@ from fastapi.exceptions import HTTPException as StarletteHTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
 from fastapi.openapi.utils import get_openapi
+from fastapi_pagination import add_pagination
 from sqlalchemy import text
 import uvicorn
 
@@ -18,7 +19,12 @@ from app.config.users import (
     google_oauth_client, current_superuser
 )
 
-from app.routers import expense_router
+from app.routers import (
+    expense_router,
+    expense_log_router,
+    invoice_router,
+    invoice_log_router,
+)
 
 from app.schemas.user_schema import (
     UserCreate, UserRead, UserReadRegister, UserUpdate
@@ -108,9 +114,12 @@ app.include_router(
         google_oauth_client,
         google_bearer_auth_backend,
         os.getenv("AUTH_VERIFICATION_SECRET"),
-        associate_by_email=True
+        redirect_url=os.getenv("GOOGLE_OAUTH_CLIENT_REDIRECT_URL"),
+        associate_by_email=True,
+        is_verified_by_default=True
     ),
-    prefix="/auth/bearer/google", tags=["bearer_auth"],
+    prefix="/auth/bearer/google",
+    tags=["bearer_auth"],
 )
 
 app.include_router(
@@ -138,8 +147,11 @@ app.include_router(
 # async def authenticated_route(user: CurrentActiveUser):
 #     return {"message": f"Hello {user.email}!"}
 
-# Other routers
+# Application routers
 app.include_router(expense_router.router)
+app.include_router(expense_log_router.router)
+app.include_router(invoice_router.router)
+app.include_router(invoice_log_router.router)
 
 
 # Healthcheck
@@ -147,6 +159,11 @@ app.include_router(expense_router.router)
 async def root(request: Request):
     return {"message": "Healthcheck"}
 
+# TODO: think what's the point of this. First the superuser dependency
+# doesn't seems to be working, I guess for some reason the request
+# call defaults too the original endpoints. Even if it worked
+# it would be useful only if the superuser gets access to the
+# protected endpoints. Investigate whats the point of this.
 if os.getenv("DEV_ENVIRONMENT") == "development":
     @app.get("/url-list")
     def get_all_urls(request: Request, user: str = Depends(current_superuser)):

@@ -5,7 +5,8 @@ from fastapi_users.db import (
     SQLAlchemyUserDatabase
 )
 from fastapi_users_db_sqlalchemy.access_token import (
-    SQLAlchemyAccessTokenDatabase, SQLAlchemyBaseAccessTokenTableUUID
+    SQLAlchemyAccessTokenDatabase,
+    SQLAlchemyBaseAccessTokenTableUUID,
 )
 from sqlalchemy import Column, String
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -26,7 +27,14 @@ class User(SQLAlchemyBaseUserTableUUID, CreatedUpdateBase):
     oauth_accounts: list[OAuthAccount] = relationship(
         "OAuthAccount", lazy="joined"
     )
-    expenses: Mapped[list["Expense"]] = relationship(back_populates="user")  # noqa
+    expenses: Mapped[list["Expense"]] = relationship(back_populates="user")
+    invoices: Mapped[list["Invoice"]] = relationship(back_populates="user")
+    expense_logs: Mapped[list["ExpenseLog"]] = relationship(
+        back_populates="user"
+    )
+    invoice_logs: Mapped[list["InvoiceLog"]] = relationship(
+        back_populates="user"
+    )
 
     __allow_unmapped__ = True
 

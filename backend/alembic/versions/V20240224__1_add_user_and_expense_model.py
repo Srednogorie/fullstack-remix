@@ -1,8 +1,8 @@
-"""add user auth models
+"""Add user and expense model
 
-Revision ID: V20240108_1
+Revision ID: V20240224__1
 Revises: 
-Create Date: 2024-01-08 22:54:25.518078
+Create Date: 2024-02-24 19:19:56.247637
 
 """
 from alembic import op
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'V20240108_1'
+revision = 'V20240224__1'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -59,6 +59,21 @@ def upgrade() -> None:
     )
     op.create_index(op.f('ix_oauth_account_account_id'), 'oauth_account', ['account_id'], unique=False)
     op.create_index(op.f('ix_oauth_account_oauth_name'), 'oauth_account', ['oauth_name'], unique=False)
+
+    op.create_table(
+        'expenses',
+        sa.Column('id', sa.Integer(), nullable=False),
+        sa.Column('title', sa.String(length=64), nullable=False),
+        sa.Column('description', sa.String(length=200), nullable=True),
+        sa.Column('amount', sa.Float(), nullable=False),
+        sa.Column('currency_code', sa.String(length=10), nullable=False),
+        sa.Column('attachment', sa.String(length=200), nullable=True),
+        sa.Column('user_id', fastapi_users_db_sqlalchemy.generics.GUID(), nullable=False),
+        sa.Column('created', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+        sa.Column('updated', sa.DateTime(timezone=True), nullable=True),
+        sa.ForeignKeyConstraint(['user_id'], ['user.id'], name=op.f('fk_expenses_user_id_user')),
+        sa.PrimaryKeyConstraint('id', name=op.f('pk_expenses'))
+    )
     # ### end Alembic commands ###
 
 
@@ -67,6 +82,7 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_oauth_account_oauth_name'), table_name='oauth_account')
     op.drop_index(op.f('ix_oauth_account_account_id'), table_name='oauth_account')
     op.drop_table('oauth_account')
+    op.drop_table('expenses')
     op.drop_index(op.f('ix_accesstoken_created_at'), table_name='accesstoken')
     op.drop_table('accesstoken')
     op.drop_index(op.f('ix_user_email'), table_name='user')

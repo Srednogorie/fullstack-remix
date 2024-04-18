@@ -1,20 +1,26 @@
-from datetime import date
+from datetime import date, datetime
 from typing import Optional
 import uuid
-from pydantic import BaseModel, ConfigDict
-
-from app.models.user_model import User
-
-# Think of a good way to describe CRUD
+from pydantic import BaseModel
 
 
 class Expense(BaseModel):
     title: str
-    amount: float
-    date: date
+    description: Optional[str]
+    amount: float | int
+    currency_code: str
+    attachment: Optional[str]
+    created: Optional[datetime] = None
+    updated: Optional[datetime] = None
     user_id: Optional[uuid.UUID] = None
+
+
+class ExpenseUpdate(BaseModel):
+    title: str
+    description: Optional[str]
+    amount: float | int
+    attachment: Optional[str]
 
 
 class ExpenseRead(Expense):
     id: int
-    user_id: Optional[uuid.UUID]

@@ -3,13 +3,14 @@ from __future__ import print_function
 import os
 import uuid
 from typing import Annotated, Optional
+from fastapi.responses import JSONResponse
 
 import sib_api_v3_sdk
-from fastapi import Depends, Request
+from fastapi import Depends, Request, Response
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin, models
 from fastapi_users.authentication import AuthenticationBackend, BearerTransport
 from fastapi_users.authentication.strategy import (
-    AccessTokenDatabase, DatabaseStrategy
+    AccessTokenDatabase, DatabaseStrategy, Strategy
 )
 from fastapi_users.db import SQLAlchemyUserDatabase
 from fastapi_users.password import PasswordHelper
@@ -41,7 +42,6 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         self, user: User, token: str, request: Optional[Request] = None
     ):
         configuration = sib_api_v3_sdk.Configuration()
-        # Key is invalid
         configuration.api_key['api-key'] = os.getenv("BREVO_API_KEY")
 
         api_instance = sib_api_v3_sdk.TransactionalEmailsApi(
@@ -92,39 +92,10 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
             f"Verification token: {token}"
         )
 
-    async def oauth_callback(
-        self,
-        oauth_name: str,
-        access_token: str,
-        account_id: str,
-        account_email: str,
-        expires_at: Optional[int] = None,
-        refresh_token: Optional[str] = None,
-        request: Optional[Request] = None,
-        *,
-        associate_by_email: bool = False
-    ) -> models.UOAP:
-        user = await super().oauth_callback(
-            oauth_name,
-            access_token,
-            account_id,
-            account_email,
-            expires_at,
-            refresh_token,
-            request,
-            associate_by_email=associate_by_email
-        )
-        if not user.is_verified:
-            password_helper = PasswordHelper()
-            password = password_helper.generate()
-            await self.user_db.update(
-                user,
-                update_dict={
-                    "is_verified": True,
-                    "hashed_password": password_helper.hash(password)
-                }
-            )
-        return user
+    async def on_after_verify(
+            self, user: User, request: Optional[Request] = None
+    ):
+        print(f"User {user.id} has been verified.")
 
 
 async def get_user_manager(
@@ -153,15 +124,33 @@ bearer_transport = BearerTransport(tokenUrl="auth/bearer/login")
 def get_database_strategy(
         access_token_db: AccessTokenDatabase = Depends(get_access_token_db)
 ) -> DatabaseStrategy:
-    return DatabaseStrategy(access_token_db, lifetime_seconds=3600)
+    # TODO: The expiration time must match the value set in Remix
+    # think about setting common aws parameter for production
+    return DatabaseStrategy(
+        access_token_db, lifetime_seconds=60 * 60 * 24 * 30
+    )
 
 
-bearer_auth_backend = AuthenticationBackend(
+class CustomAuthenticationBackend(AuthenticationBackend):
+    async def login(
+        self, strategy: Strategy[models.UP, models.ID], user: models.UP
+    ) -> Response:
+        token = await strategy.write_token(user)
+        return JSONResponse(
+            {
+                "access_token": token,
+                "token_type": "bearer",
+                "user_id": user.id.hex,
+            }
+        )
+
+
+bearer_auth_backend = CustomAuthenticationBackend(
     name="bearer",
     transport=bearer_transport,
     get_strategy=get_database_strategy,
 )
-google_bearer_auth_backend = AuthenticationBackend(
+google_bearer_auth_backend = CustomAuthenticationBackend(
     name="google_bearer",
     transport=bearer_transport,
     get_strategy=get_database_strategy,

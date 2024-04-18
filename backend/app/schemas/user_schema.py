@@ -10,18 +10,21 @@ class UserRead(schemas.BaseUser[uuid.UUID]):
 
 class UserReadRegister(BaseModel):
     id: models.ID
+    email: str
 
     class Config:
         from_attributes = True
 
 
 class UserCreate(schemas.BaseUserCreate):
+    username: str
     confirm_password: str
 
     class Config:
         json_schema_extra = {
             "example": {
                 "email": "sash@gmail.com",
+                "username": "sash",
                 "password": "",
                 "confirm_password": "",
             }
