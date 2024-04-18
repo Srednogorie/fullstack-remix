@@ -2,11 +2,10 @@ import asyncio
 import os
 import sys
 
-from sqlalchemy import select, create_engine
-from sqlalchemy.orm import joinedload, sessionmaker
-
 from app import settings
 from app.models import *
+from sqlalchemy import create_engine, select
+from sqlalchemy.orm import joinedload, sessionmaker
 
 sys.path.append("/Users/apple/Development/projects/main_api")
 

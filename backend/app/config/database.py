@@ -1,11 +1,10 @@
 import os
 from typing import AsyncGenerator
 
-from sqlalchemy import MetaData, create_engine
 from app import settings
-
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker, registry
+from sqlalchemy import MetaData, create_engine
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import registry, sessionmaker
 
 db_user = os.getenv("DB_USER")
 db_password = os.getenv("DB_PASSWORD")

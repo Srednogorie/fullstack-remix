@@ -1,7 +1,6 @@
+from app.config.database import mapper_registry
 from sqlalchemy import Column, DateTime
 from sqlalchemy.sql import func
-
-from app.config.database import mapper_registry
 
 
 @mapper_registry.mapped

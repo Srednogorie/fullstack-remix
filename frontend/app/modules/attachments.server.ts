@@ -1,13 +1,13 @@
 // Remix upload handler for file uploads, uses local file system
 // Not used in the current setup
 
-
-import type { UploadHandler } from '@remix-run/node';
 import {
   unstable_composeUploadHandlers,
   unstable_createFileUploadHandler,
   unstable_createMemoryUploadHandler,
 } from '@remix-run/node';
+
+import type { UploadHandler } from '@remix-run/node';
 import fs from 'fs';
 import path from 'path';
 

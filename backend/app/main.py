@@ -1,39 +1,27 @@
-from contextlib import asynccontextmanager
 import os
+from contextlib import asynccontextmanager
+
 import debugpy
-
+import uvicorn
+from app.config.database import get_db_cm
+from app.config.users import (bearer_auth_backend, current_superuser,
+                              fastapi_users, google_bearer_auth_backend,
+                              google_oauth_client)
+from app.routers import (expense_log_router, expense_router,
+                         invoice_log_router, invoice_router)
+from app.schemas.user_schema import (UserCreate, UserRead, UserReadRegister,
+                                     UserUpdate)
+from app.utils.app_exceptions import AppExceptionCase, app_exception_handler
+from app.utils.request_exceptions import (http_exception_handler,
+                                          request_validation_exception_handler)
+from app.utils.ws_manager import WsConnectionManager
 from fastapi import Depends, FastAPI, Request, WebSocket, WebSocketDisconnect
-
 from fastapi.exceptions import HTTPException as StarletteHTTPException
 from fastapi.exceptions import RequestValidationError
-from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
+from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 from fastapi.openapi.utils import get_openapi
 from fastapi_pagination import add_pagination
 from sqlalchemy import text
-import uvicorn
-
-from app.utils.ws_manager import WsConnectionManager
-
-from app.config.users import (
-    bearer_auth_backend, fastapi_users, google_bearer_auth_backend,
-    google_oauth_client, current_superuser
-)
-
-from app.routers import (
-    expense_router,
-    expense_log_router,
-    invoice_router,
-    invoice_log_router,
-)
-
-from app.schemas.user_schema import (
-    UserCreate, UserRead, UserReadRegister, UserUpdate
-)
-from app.utils.app_exceptions import AppExceptionCase, app_exception_handler
-from app.utils.request_exceptions import (
-    http_exception_handler, request_validation_exception_handler
-)
-from app.config.database import get_db_cm
 
 if os.getenv("DEV_ENVIRONMENT") == "development":
     app = FastAPI()

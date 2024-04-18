@@ -1,6 +1,7 @@
+import uuid
 from datetime import date, datetime
 from typing import Optional
-import uuid
+
 from pydantic import BaseModel
 
 

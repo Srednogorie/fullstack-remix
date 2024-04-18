@@ -1,12 +1,13 @@
 from typing import Annotated
+
+from app import schemas
+from app.config.users import CurrentActiveUser
+from app.models.invoice_model import Invoice
+from app.models.user_model import User
+from app.utils.custom_api_route import APIRouter
+from app.utils.service_result import handle_result
 from fastapi import Depends, Query, Request
 from fastapi_pagination import Page, pagination_ctx
-from app import schemas
-from app.models.invoice_model import Invoice
-from app.utils.service_result import handle_result
-from app.utils.custom_api_route import APIRouter
-from app.models.user_model import User
-from app.config.users import CurrentActiveUser
 
 router = APIRouter(prefix="/invoices", tags=["invoices"])
 

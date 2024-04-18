@@ -1,5 +1,5 @@
-import { useRevalidator } from '@remix-run/react';
 import { useEffect } from 'react';
+import { useRevalidator } from '@remix-run/react';
 
 export function useEventSource() {
   const { revalidate } = useRevalidator();

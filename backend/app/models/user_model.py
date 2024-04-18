@@ -1,19 +1,14 @@
-from fastapi import Depends
-from fastapi_users.db import (
-    SQLAlchemyBaseOAuthAccountTableUUID,
-    SQLAlchemyBaseUserTableUUID,
-    SQLAlchemyUserDatabase
-)
-from fastapi_users_db_sqlalchemy.access_token import (
-    SQLAlchemyAccessTokenDatabase,
-    SQLAlchemyBaseAccessTokenTableUUID,
-)
-from sqlalchemy import Column, String
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import relationship, Mapped
-
 from app.config.database import get_db, mapper_registry
 from app.models.base import CreatedUpdateBase
+from fastapi import Depends
+from fastapi_users.db import (SQLAlchemyBaseOAuthAccountTableUUID,
+                              SQLAlchemyBaseUserTableUUID,
+                              SQLAlchemyUserDatabase)
+from fastapi_users_db_sqlalchemy.access_token import (
+    SQLAlchemyAccessTokenDatabase, SQLAlchemyBaseAccessTokenTableUUID)
+from sqlalchemy import Column, String
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Mapped, relationship
 
 
 @mapper_registry.mapped

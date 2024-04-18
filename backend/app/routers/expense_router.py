@@ -1,16 +1,17 @@
-from dataclasses import dataclass
 import os
+from dataclasses import dataclass
 from typing import Annotated
+
+from app import schemas
+from app.config.users import CurrentActiveUser
+from app.models.expense_model import Expense
+from app.models.user_model import User
+from app.utils.aws import get_location, s3, upload_user_file
+from app.utils.custom_api_route import APIRouter
+from app.utils.service_result import handle_result
 from fastapi import Depends, File, Form, Query, Request, UploadFile
 from fastapi_pagination import Page, pagination_ctx
 from pydantic import ValidationError
-from app import schemas
-from app.models.expense_model import Expense
-from app.utils.aws import get_location, s3, upload_user_file
-from app.utils.service_result import handle_result
-from app.utils.custom_api_route import APIRouter
-from app.models.user_model import User
-from app.config.users import CurrentActiveUser
 
 router = APIRouter(prefix="/expenses", tags=["expenses"])
 

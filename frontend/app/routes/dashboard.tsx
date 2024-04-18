@@ -1,15 +1,15 @@
+import { Form, Outlet, Link as RemixLink, useLoaderData, useLocation, useRouteError } from '@remix-run/react';
 import type { HeadersFunction, LoaderFunctionArgs, MetaFunction, SerializeFrom } from '@remix-run/node';
-import { json } from '@remix-run/node';
-import { Form, Link as RemixLink, Outlet, useLoaderData, useLocation, useRouteError } from '@remix-run/react';
-import axios from 'axios';
 
 import { Container } from '~/components/containers';
 import { H1 } from '~/components/headings';
 import { NavLink } from '~/components/links';
+import axios from 'axios';
+import { json } from '@remix-run/node';
 import { logger } from '~/logger.server';
-import { useEventSource } from '~/modules/server-sent-events/event-source';
 import { requireUserId } from '~/modules/session/session.server';
 import type { loader as rootLoader } from '~/root';
+import { useEventSource } from '~/modules/server-sent-events/event-source';
 
 export const headers: HeadersFunction = () => {
   return {

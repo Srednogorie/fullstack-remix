@@ -1,7 +1,7 @@
 import uuid
 
-from fastapi_users import schemas, models
-from pydantic import model_validator, BaseModel
+from fastapi_users import models, schemas
+from pydantic import BaseModel, model_validator
 
 
 class UserRead(schemas.BaseUser[uuid.UUID]):

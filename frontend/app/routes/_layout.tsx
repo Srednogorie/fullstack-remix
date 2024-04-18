@@ -1,7 +1,6 @@
 import type { HeadersFunction } from '@remix-run/node';
-import { Outlet } from '@remix-run/react';
-
 import { NavLink } from '~/components/links';
+import { Outlet } from '@remix-run/react';
 import { useUser } from '~/modules/session/session';
 
 export const headers: HeadersFunction = () => {

@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs, SerializeFrom } from '@remix-run/node';
-import { defer, json, redirect, unstable_parseMultipartFormData } from '@remix-run/node';
+import { Attachment, Form, Input, Textarea } from '~/components/forms';
 import {
   Await,
   isRouteErrorResponse,
@@ -9,18 +9,18 @@ import {
   useParams,
   useRouteError,
 } from '@remix-run/react';
-import axios from 'axios';
-import { Suspense } from 'react';
+import { H2, H3 } from '~/components/headings';
+import { defer, json, redirect, unstable_parseMultipartFormData } from '@remix-run/node';
 
 import { Button } from '~/components/buttons';
-import { Attachment, Form, Input, Textarea } from '~/components/forms';
-import { H2, H3 } from '~/components/headings';
 import { FloatingActionLink } from '~/components/links';
-import { logger } from '~/logger.server';
-import { uploadHandler } from '~/modules/attachments.server';
-import { parseInvoice } from '~/modules/invoices.server';
+import { Suspense } from 'react';
+import axios from 'axios';
 import { emitter } from '~/modules/server-sent-events/events.server';
+import { logger } from '~/logger.server';
+import { parseInvoice } from '~/modules/invoices.server';
 import { requireUserId } from '~/modules/session/session.server';
+import { uploadHandler } from '~/modules/attachments.server';
 
 async function handleDelete(request: Request, id: string, userId: string): Promise<Response> {
   const referer = request.headers.get('referer');

@@ -1,7 +1,7 @@
-import type { LoaderFunctionArgs } from '@remix-run/node';
-
-import type { OnSetup } from '~/modules/server-sent-events/events.server';
 import { emitter, eventStream } from '~/modules/server-sent-events/events.server';
+
+import type { LoaderFunctionArgs } from '@remix-run/node';
+import type { OnSetup } from '~/modules/server-sent-events/events.server';
 import { requireUserId } from '~/modules/session/session.server';
 
 export async function loader({ request }: LoaderFunctionArgs) {

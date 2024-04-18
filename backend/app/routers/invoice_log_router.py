@@ -1,11 +1,12 @@
 from typing import Annotated
-from fastapi import Depends, Request
+
 from app import schemas
-from app.models.invoice_log_model import InvoiceLog
-from app.utils.service_result import handle_result
-from app.utils.custom_api_route import APIRouter
-from app.models.user_model import User
 from app.config.users import CurrentActiveUser
+from app.models.invoice_log_model import InvoiceLog
+from app.models.user_model import User
+from app.utils.custom_api_route import APIRouter
+from app.utils.service_result import handle_result
+from fastapi import Depends, Request
 
 router = APIRouter(prefix="/invoice_logs", tags=["invoice_logs"])
 

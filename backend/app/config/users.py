@@ -3,24 +3,20 @@ from __future__ import print_function
 import os
 import uuid
 from typing import Annotated, Optional
-from fastapi.responses import JSONResponse
 
 import sib_api_v3_sdk
+from app.models.user_model import User, get_access_token_db, get_user_db
 from fastapi import Depends, Request, Response
+from fastapi.responses import JSONResponse
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin, models
 from fastapi_users.authentication import AuthenticationBackend, BearerTransport
-from fastapi_users.authentication.strategy import (
-    AccessTokenDatabase, DatabaseStrategy, Strategy
-)
+from fastapi_users.authentication.strategy import (AccessTokenDatabase,
+                                                   DatabaseStrategy, Strategy)
 from fastapi_users.db import SQLAlchemyUserDatabase
 from fastapi_users.password import PasswordHelper
 from httpx_oauth.clients.google import GoogleOAuth2
 from sib_api_v3_sdk.rest import ApiException
 from starlette import status
-
-from app.models.user_model import (
-    User, get_user_db, get_access_token_db,
-)
 
 # Key is invalid
 google_oauth_client = GoogleOAuth2(

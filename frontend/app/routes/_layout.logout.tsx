@@ -1,6 +1,7 @@
+import { logout, requireUserId } from "~/modules/session/session.server";
+
 import type { ActionFunctionArgs } from "@remix-run/node"; // or cloudflare/deno
 import { redirect } from "@remix-run/node"; // or cloudflare/deno
-import { logout, requireUserId } from "~/modules/session/session.server";
 
 export function loader() {
   return redirect('/');
