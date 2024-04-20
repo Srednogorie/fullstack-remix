@@ -238,7 +238,7 @@ Resources:
       Protocol: HTTPS
       Certificates:
         # Move this to parameter
-        - CertificateArn: arn:aws:acm:eu-central-1:042533097213:certificate/6082a673-6d76-4caa-a8ca-9a628bbbdc17
+        - CertificateArn: arn:aws:acm:eu-central-1:042533097213:certificate/61506c0c-c5eb-4ca0-bb1d-bcc2e1fb8bb2
 
   # Open up the service's security group to traffic originating
   # from the security group of the load balancer.
