@@ -123,8 +123,9 @@ app.include_router(
     fastapi_users.get_reset_password_router(), prefix="/auth", tags=["reset"],
 )
 app.include_router(
+    # TODO Verify in production
     fastapi_users.get_users_router(
-        UserRead, UserUpdate, requires_verification=True
+        UserRead, UserUpdate, requires_verification=False
     ),
     prefix="/users",
     tags=["users"],
