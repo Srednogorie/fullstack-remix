@@ -129,6 +129,8 @@ Resources:
               Value: wss://paca.middle4.net
             - Name: REMIX_SECRET
               Value: __CHANGE_ME__
+            - Name: SESSION_SECRET
+              Value: __CHANGE_ME__
           Command:
             - npm
             - run
