@@ -6,7 +6,7 @@ on:
       applicationName:
         description: 'The name of your application will be used for naming AWS resources'
         required: false
-        default: 'fulllstack-remix'
+        default: 'fullstack-remix'
 
 jobs:
   cluster:
