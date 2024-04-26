@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "bee_rich"
+name = "fullstack-remix"
 version = "0.1.0"
 description = ""
 authors = ["Leno <akrachunov@gmail.com>"]
