@@ -147,7 +147,7 @@ Resources:
           Command:
             - /bin/sh
             - '-c'
-            - echo 'Alembic migration' && alembic upgrade head && echo 'Starting server' && python app/main.py
+            - echo 'Alembic migration' && alembic upgrade head && echo 'Populating database' && python app/config/populate_db.py && echo 'Starting server' && python app/main.py
   Service:
     Type: AWS::ECS::Service
     DependsOn: PublicLoadBalancerListener

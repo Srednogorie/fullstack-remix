@@ -109,7 +109,8 @@ class Expense(CreatedUpdateBase):
         async with db_context() as db:
             q = select(cls).where(cls.id == expense_id, cls.user_id == user.id)
             expense = await db.scalar(q)
-            delete_user_file(f"{user.id}/{expense.attachment}")
+            if expense.attachment:
+                delete_user_file(f"{user.id}/{expense.attachment}")
             if not expense:
                 return ServiceResult(
                     AppException.GetObject({"expense_id": expense_id})

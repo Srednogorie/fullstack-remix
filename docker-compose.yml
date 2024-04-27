@@ -32,6 +32,8 @@ services:
       - >-
         echo 'Alembic migration'
         && alembic upgrade head
+        && echo 'Populating database'
+        && python app/config/populate_db.py
         && echo 'Starting server'
         && python app/main.py
 
