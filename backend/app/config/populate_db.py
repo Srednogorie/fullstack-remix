@@ -31,7 +31,8 @@ async def create_user(email: str, password: str, is_superuser: bool = False):
                             username=await randomword(10),
                             password=password,
                             confirm_password=password,
-                            is_superuser=is_superuser
+                            is_superuser=is_superuser,
+                            is_verified=True,
                         )
                     )
                     print(f"User created {user}")
