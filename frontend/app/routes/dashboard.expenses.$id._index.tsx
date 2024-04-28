@@ -23,7 +23,7 @@ async function handleDelete(request: Request, id: string): Promise<Response> {
   const referer = request.headers.get('referer');
   const redirectPath = referer || '/dashboard/expenses';
 
-  await new Promise(resolve => setTimeout(resolve, 5000));
+  // await new Promise(resolve => setTimeout(resolve, 5000));
 
   try {
     // await handleRemoveAttachment(formData, id, userId)
@@ -95,8 +95,8 @@ export async function action({ params, request }: ActionFunctionArgs) {
 }
 
 async function getLogs(id) {
-  const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-  await delay(5000)
+  // const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+  // await delay(5000)
   const expenseLogsResponse = await axios.get(`/expense_logs/?expense_id=${id}`)
   const expenseLogs = expenseLogsResponse.data
   return expenseLogs
