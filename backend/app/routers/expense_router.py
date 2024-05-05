@@ -16,7 +16,7 @@ from pydantic import ValidationError
 router = APIRouter(prefix="/expenses", tags=["expenses"])
 
 
-Page = Page.with_custom_options(size=Query(2))
+Page = Page.with_custom_options(size=Query(5))
 
 
 @router.get(

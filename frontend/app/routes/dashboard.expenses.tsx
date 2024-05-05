@@ -11,7 +11,7 @@ import { clsx } from 'clsx';
 import { logger } from '~/logger.server';
 import { requireUserId } from '~/modules/session/session.server';
 
-const PAGE_SIZE = 2;
+const PAGE_SIZE = 5;
 
 export async function loader({ request }: LoaderFunctionArgs) {
   // const userId = await requireUserId(request);

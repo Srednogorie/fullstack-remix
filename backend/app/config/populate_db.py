@@ -9,6 +9,8 @@ from fastapi_users.exceptions import UserAlreadyExists
 import asyncio
 
 from app.config.database import get_db
+from app.models.expense_model import Expense
+from app.models.invoice_model import Invoice
 
 get_async_session_context = contextlib.asynccontextmanager(get_db)
 get_user_manager_context = contextlib.asynccontextmanager(get_user_manager)
@@ -35,8 +37,27 @@ async def create_user(email: str, password: str, is_superuser: bool = False):
                             is_verified=True,
                         )
                     )
-                    print(f"User created {user}")
-                    return user
+
+                    # Create single invoice too avoid error
+                    invoice = Invoice(
+                        title="First Invoice Dummy",
+                        description="Test Description",
+                        amount=random.randint(1, 100),
+                        currency_code="USD",
+                        user_id=user.id,
+                    )
+                    session.add(invoice)
+                    # Create 20 expenses
+                    for i in range(20):
+                        expense = Expense(
+                            title=f"{await randomword(random.randint(5, 10))} {await randomword(random.randint(15, 20))}",
+                            description=f"{await randomword(random.randint(10, 20))} {await randomword(random.randint(10, 20))} {await randomword(random.randint(10, 20))} {await randomword(random.randint(10, 20))}",
+                            amount=random.randint(1, 100),
+                            currency_code="USD",
+                            user_id=user.id,
+                        )
+                        session.add(expense)
+                    await session.commit()
     except UserAlreadyExists:
         print(f"User {email} already exists")
         raise

@@ -10,6 +10,7 @@ import { Card } from '~/components/containers';
 import { H1 } from '~/components/headings';
 import { InlineError } from '~/components/texts';
 import { getVisitorCookieData } from '~/modules/visitors.server';
+import { log } from 'winston';
 import loginCSS from '~/styles/login.css';
 import { useLoaderData } from '@remix-run/react';
 import { z } from 'zod';
@@ -27,16 +28,24 @@ export const links: LinksFunction = () => [
 ];
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { errors, data, receivedValues: defaultValues } = await getValidatedFormData<FormData>(request, resolver); 
-  if (errors) {
-    // The keys "errors" and "defaultValue" are picked up automatically by useRemixForm
-    return json({ errors, defaultValues });
-  }
+  // Normal way to get form data
+  // const { errors, data, receivedValues: defaultValues } = await getValidatedFormData<FormData>(request, resolver); 
+  // if (errors) {
+  //   // The keys "errors" and "defaultValue" are picked up automatically by useRemixForm
+  //   return json({ errors, defaultValues });
+  // }
 
-  const formData = new URLSearchParams({
-    'username': data.email,
-    'password': data.password,
-  })
+  // const formData = new URLSearchParams({
+  //   'username': data.email,
+  //   'password': data.password,
+  // })
+
+  // Getting the data for locust testing
+  const credentials = await request.text();
+  const formData = new URLSearchParams(credentials)
+  formData.delete('scope')
+  formData.delete('client_id')
+  formData.delete('client_')
 
 
   try {
