@@ -26,6 +26,9 @@ services:
     stdin_open: true
     depends_on:
       - postgres
+    # TODO
+    # We are populating the db in the task definition but not in the compose file!
+    # What to do. We can keep it on both places and get an error if the db is already populated
     command:
       - /bin/sh
       - -c

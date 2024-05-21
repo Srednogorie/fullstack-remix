@@ -2,6 +2,7 @@ import os
 from contextlib import asynccontextmanager
 
 import debugpy
+import logfire
 import uvicorn
 from app.config.database import get_db_cm
 from app.config.users import (bearer_auth_backend, current_superuser,
@@ -27,6 +28,9 @@ if os.getenv("DEV_ENVIRONMENT") == "development":
     app = FastAPI()
 elif os.getenv("DEV_ENVIRONMENT") == "production":
     app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
+
+logfire.configure()
+logfire.instrument_fastapi(app)
 
 ws_manager = WsConnectionManager()
 

@@ -2,7 +2,7 @@ import os
 from typing import AsyncGenerator
 
 from app import settings
-from sqlalchemy import MetaData, create_engine
+from sqlalchemy import MetaData
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import registry, sessionmaker
 
